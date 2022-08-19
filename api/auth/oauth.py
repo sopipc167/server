@@ -1,3 +1,4 @@
+from lib2to3.pgen2 import token
 import requests
 from flask import Flask, redirect, request
 from flask_restx import Resource, Api, Namespace
@@ -33,12 +34,17 @@ class NaverLoginCallback(Resource):
             "https://openapi.naver.com/v1/nid/me", headers={"Authorization": f"Bearer {access_token}"},)
         profile_data = profile_request.json()
 
-        return {'token_data': token_json}
+        redirect_url = ("com.pandora_cube.p_cube_plus://"
+                        "access_token=" + token_json.get('access_token') + "&"
+                        "refresh_token=" + token_json.get('refresh_token') + "&"
+                        "expires_in=" + token_json.get('expires_in'))
+
+        return redirect_url
 
 
 @oauth.route("/naver/leave", methods=['GET'])
 class NaverLoginLeave(Resource):
-    def post():
+    def post(self):
         headers = request.headers
         if headers.get('Authorization') is None:
             return {'message': 'Unauthorized'}, 401
