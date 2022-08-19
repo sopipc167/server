@@ -18,8 +18,10 @@ class NaverLogin(Resource):
         redirect_uri = "http://p-cube-plus.com/oauth/naver/callback"
         url = f"https://nid.naver.com/oauth2.0/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
         return redirect(url)
-    
-    def callback(self):
+
+@oauth.route("/naver/callback")
+class NaverLoginCallback(Resource):
+    def get(self):
         params = request.args.to_dict()
         code = params.get("code")
 
