@@ -13,14 +13,14 @@ oauth = Namespace('oauth')
 
 @oauth.route("/naver/login")
 class NaverLogin(Resource):
-    def post():
+    def get(self):
         redirect_uri = "http://p-cube-plus.com/oauth/naver/callback"
         url = f"https://nid.naver.com/oauth2.0/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
         return redirect(url)
 
 @oauth.route("/naver/callback")
 class NaverLoginCallback(Resource):
-    def get():
+    def get(self):
         params = request.args.to_dict()
         code = params.get("code")
 
