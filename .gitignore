@@ -2,3 +2,4 @@
 config/
 static/uploads
 .venv/
+__pycache__/
