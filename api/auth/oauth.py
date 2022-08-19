@@ -34,7 +34,7 @@ class NaverLoginCallback(Resource):
             "https://openapi.naver.com/v1/nid/me", headers={"Authorization": f"Bearer {access_token}"},)
         profile_data = profile_request.json()
 
-        redirect_url = ("com.pandora_cube.p_cube_plus://"
+        redirect_url = ("p_cube_plus://"
                         "access_token=" + token_json.get('access_token') + "&"
                         "refresh_token=" + token_json.get('refresh_token') + "&"
                         "expires_in=" + token_json.get('expires_in'))
