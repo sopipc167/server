@@ -37,7 +37,7 @@ class NaverLogin(Resource):
                         "refresh_token=" + token_json.get('refresh_token') + "&"
                         "expires_in=" + token_json.get('expires_in'))
 
-        return redirect(redirect_url)
+        return redirect_url
 
 @oauth.route("/naver/leave", methods=['GET'])
 class NaverLoginLeave(Resource):
