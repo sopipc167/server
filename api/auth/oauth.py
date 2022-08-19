@@ -18,10 +18,8 @@ class NaverLogin(Resource):
         redirect_uri = "http://p-cube-plus.com/oauth/naver/callback"
         url = f"https://nid.naver.com/oauth2.0/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
         return redirect(url)
-
-@oauth.route("/naver/callback")
-class NaverLoginCallback(Resource):
-    def get(self):
+    
+    def callback(self):
         params = request.args.to_dict()
         code = params.get("code")
 
@@ -39,7 +37,7 @@ class NaverLoginCallback(Resource):
                         "refresh_token=" + token_json.get('refresh_token') + "&"
                         "expires_in=" + token_json.get('expires_in'))
 
-        return redirect_url
+        return redirect(redirect_url)
 
 @oauth.route("/naver/leave", methods=['GET'])
 class NaverLoginLeave(Resource):
