@@ -60,9 +60,9 @@ class RentList(Resource):
         return data
 
 
-@rent.route("/<int:product_id>")
+@rent.route("/<int:rent_id>")
 class RentProduct(Resource):
-    def get(self, product_id):
+    def get(self, rent_id):
         data1 = {
             "id": 1,
             "deadline": "2022-11-01",
@@ -95,7 +95,7 @@ class RentProduct(Resource):
                 "publisher": None, # String?
             },
         }
-        if product_id == 1:
+        if rent_id == 1:
             return data1
         else:
             return data2
