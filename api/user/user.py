@@ -141,37 +141,35 @@ class UserProfile(Resource):
 @user.route("/notification")
 class UserNotification(Resource):
     def get(self):
-        data = {
-            "notification_list": [
-                {
-                    "id": 1,
-                    "type": 0,
-                    "date": "2023-01-01 10:00:00",
-                    "description": "당일 10시에 청소가 시작됩니다.",
-                    "name": "청소 알림",
-                },
-                {
-                    "id": 2,
-                    "type": 0,
-                    "date": "2023-01-01 10:00:00",
-                    "description": "당일 10시에 청소가 시작됩니다.",
-                    "name": "청소 알림",
-                },
-                {
-                    "id": 1,
-                    "type": 0,
-                    "date": "2023-01-01 10:00:00",
-                    "description": "당일 10시에 청소가 시작됩니다.",
-                    "name": "청소 알림",
-                },
-                {
-                    "id": 1,
-                    "type": 0,
-                    "date": "2023-01-01 10:00:00",
-                    "description": "당일 10시에 청소가 시작됩니다.",
-                    "name": "청소 알림",
-                }
-            ]
-        }
+        data = [
+            {
+                "id": 1,
+                "type": 0,
+                "date": "2023-01-01 10:00:00",
+                "description": "당일 10시에 청소가 시작됩니다.",
+                "name": "청소 알림",
+            },
+            {
+                "id": 2,
+                "type": 0,
+                "date": "2023-01-01 10:00:00",
+                "description": "당일 10시에 청소가 시작됩니다.",
+                "name": "청소 알림",
+            },
+            {
+                "id": 1,
+                "type": 0,
+                "date": "2023-01-01 10:00:00",
+                "description": "당일 10시에 청소가 시작됩니다.",
+                "name": "청소 알림",
+            },
+            {
+                "id": 1,
+                "type": 0,
+                "date": "2023-01-01 10:00:00",
+                "description": "당일 10시에 청소가 시작됩니다.",
+                "name": "청소 알림",
+            }
+        ]
 
         return data
