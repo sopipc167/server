@@ -59,7 +59,6 @@ class RentList(Resource):
         ]
         return data
 
-
 @rent.route("/<int:rent_id>")
 class RentProduct(Resource):
     def get(self, rent_id):
@@ -99,3 +98,58 @@ class RentProduct(Resource):
             return data1
         else:
             return data2
+
+@rent.route("/list/<string:product_name>")
+class ProductList(Resource):
+    def get(self, product_name):
+        data = [
+            {
+            "id": 1, # int
+            "deadline": "2022-11-01", # Date?
+            "d_day": 50, # int?
+            "rent_day": "2022-09-10", # Date?
+            "product": {
+                "id": 60,
+                "is_available": False,
+                "name": product_name,
+                "category": "도서", # String,
+                "location": "A-123", # String,
+                "status": "대여중", # String,
+                "author": "김판큐", # String?,
+                "publisher": "판큐출판사", # String?
+                },
+            },
+            {
+                "id": 2,
+                "deadline": "2022-11-01",
+                "d_day": 50,
+                "rent_day": "2022-09-10",
+                "product": {
+                    "id": 60,
+                    "is_available": False,
+                    "name": "테스트 물품",
+                    "category": "도서", # String,
+                    "location": "A-123", # String,
+                    "status": "대여중", # String,
+                    "author": "김판큐", # String?,
+                    "publisher": "판큐출판사", # String?
+                },
+            },
+            {
+                "id": 3,
+                "deadline": "2022-11-01",
+                "d_day": 50,
+                "rent_day": "2022-09-10",
+                "product": {
+                    "id": 60,
+                    "is_available": False,
+                    "name": "테스트 물품",
+                    "category": "도서", # String,
+                    "location": "A-123", # String,
+                    "status": "대여중", # String,
+                    "author": "김판큐", # String?,
+                    "publisher": "판큐출판사", # String?
+                },
+            },
+        ]
+        return data
