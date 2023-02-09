@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, redirect, request
+from flask import Flask, redirect, request, make_response, jsonify
 from flask_restx import Resource, Api, Namespace
 
 rent = Namespace('rent')
@@ -98,6 +98,12 @@ class RentProduct(Resource):
             return data1
         else:
             return data2
+
+    def put(self, rent_id):
+        if rent_id == 'book_84523':
+            return make_response(jsonify({}), status=200)
+        else:
+            return make_response(jsonify({'reason': '해당 도서를 찾을 수 없어요 :('}), status=404)
 
 @rent.route("/list/<string:product_name>")
 class ProductList(Resource):
