@@ -33,12 +33,12 @@ class ProjectListAPI(Resource):
                 
             return project_list, 200
 
-@project.route('/<int:id>')
+@project.route('/<int:project_id>')
 class ProjectDetailAPI(Resource):
-    def get(self, id):
+    def get(self, project_id):
         # 데이터베이스에서 id 값에 맞는 프로젝트 상세 내역을 불러옴
         database = Database()
-        sql = f"SELECT * FROM projects where id = {id};"
+        sql = f"SELECT * FROM projects where id = {project_id};"
         project = database.execute_one(sql)
         
         if not project:
@@ -70,20 +70,42 @@ class ProjectDetailAPI(Resource):
             
             return project, 200
 
-@project.route('/<int:id>/modify')
+@project.route('/<int:project_id>/modify')
 class ProjectEditAPI(Resource):
-    def put(self):
-        """
-        user_id
-        is_finding_member
-        """
+    def put(self, project_id):
+        # Body 데이터 얻어오기
         body_data = request.get_json()
         user_id = body_data['user_id']
         is_finding_member = body_data['is_finding_member']
+        is_able_inquiry = body_data['is_able_inquiry']
         
-        sql = f"SELECT  FROM users where id = {user_id};"
-        # 유저가 PM이면 설정할 수 있게
-        # PM이 아니면 안되게
+        # 프로젝트가 존재하는 지 확인
+        database = Database()
+        sql = f"SELECT * FROM projects where id = {project_id};"
+        project_list = database.execute_one(sql)
         
-        # DB 수정 후 마저 구현 예정
-        return {}
+        # 프로젝트가 조회되지 않을 때의 처리
+        if not project_list:
+            database.close()
+            return { 'message': '프로젝트가 조회되지 않아요 :(\n지속적으로 발생하면 문의해주세요!' }, 400
+        
+        # 요청한 유저가 프로젝트의 PM인지 조회
+        sql = f"SELECT is_pm FROM project_members where project_id = {project_id} and user_id = {user_id};"
+        row = database.execute_one(sql)
+
+        if not row:
+            # 조회되지 않을 때의 예외처리
+            database.close()
+            return { 'message': '프로젝트 정보나 유저 정보가 없어요 :(' }, 400
+        elif row['is_pm']:
+            # 요청한 프로젝트의 PM이 맞을 때의 처리
+            sql = f"UPDATE projects SET is_finding_member = {is_finding_member}," \
+                f"is_able_inquiry = {is_able_inquiry} WHERE id = {project_id};"
+            database.execute(sql)
+            database.commit()
+            database.close()
+            return { 'message': '프로젝트 정보를 변경했습니다 :)' }, 200
+        else:
+            # 요청한 프로젝트의 PM이 아닐 떄의 처리
+            database.close()
+            return { 'message': '프로젝트의 PM만 수정할 수 있어요 :(' }, 400
