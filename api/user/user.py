@@ -2,6 +2,7 @@ import requests
 from flask import Flask, redirect, request
 from flask_restx import Resource, Api, Namespace
 from database.database import Database
+from datetime import datetime
 
 user = Namespace('user')
 
@@ -29,6 +30,10 @@ class UserProfile(Resource):
             sql = f"SELECT * FROM projects where id = {id};"
             project_data = database.execute_one(sql)
 
+            # Date를 String으로 형 변환함
+            project_data['start_date'] = datetime.strftime(project_data['start_date'])
+            project_data['end_date'] = datetime.strftime(project_data['end_date'])
+
             # 소속된 프로젝트(들)의 멤버 식별자 목록 조회
             sql = f"SELECT * FROM project_members where project_id = {id};"
             project_member_id_list = database.execute_all(sql)
@@ -41,13 +46,11 @@ class UserProfile(Resource):
                 member_data = database.execute_one(sql)
                 members.append(member_data)
             project_data['members'] = members
-
+            
             project_data_list.append(project_data)
         
         user_data['projects'] = project_data_list
         database.close()
-
-        print(user_data) # test code
 
         return user_data, 200
 
