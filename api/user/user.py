@@ -35,7 +35,8 @@ class UserProfile(Resource):
             # 멤버 식별자 목록을 이용하여 각 멤버별 상세 정보 조회
             members = []
             for member_id in project_member_id_list:
-                sql = f"SELECT * FROM users where id = {member_id};"
+                id = member_id['user_id']
+                sql = f"SELECT * FROM users where id = {id};"
                 member_data = database.execute_one(sql)
                 members.append(member_data)
             project_data['members'] = members
