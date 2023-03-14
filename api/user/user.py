@@ -15,6 +15,7 @@ class UserProfile(Resource):
         user_data = database.execute_one(sql)
 
         if not user_data:
+            database.close()
             return { 'message': '회원 정보를 찾지 못했어요 :(' }, 400
 
         # 소속된 프로젝트(들)의 식별자 목록 조회
@@ -44,6 +45,9 @@ class UserProfile(Resource):
             project_data_list.append(project_data)
         
         user_data['projects'] = project_data_list
+        database.close()
+
+        print(user_data) # test code
 
         return user_data, 200
 
