@@ -18,7 +18,7 @@ class UserProfile(Resource):
             return { 'message': '회원 정보를 찾지 못했어요 :(' }, 400
 
         # 소속된 프로젝트(들)의 식별자 목록 조회
-        sql = f"SELECT project_id FROM project_members where user_id = {user_data['id']}"
+        sql = f"SELECT project_id FROM project_members where user_id = {user_data['id']};"
         project_id_list = database.execute_all(sql)
 
         # 소속된 프로젝트(들)의 상세 정보 조회
