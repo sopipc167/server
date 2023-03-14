@@ -1,142 +1,50 @@
 import requests
 from flask import Flask, redirect, request
 from flask_restx import Resource, Api, Namespace
+from database.database import Database
 
 user = Namespace('user')
 
 @user.route("/profile")
 class UserProfile(Resource):
     def get(self):
-        data = {
-            "id": 1,
-            "level": "수습회원",
-            "name": "김판큐",
-            "part_index": 1,
-            "profile_image": "url",
-            "projects": [
-                {
-                    "id": 1,
-                    "type": 0,
-                    "name": "PCube+",
-                    "is_end": False,
-                    "start_date": "2022-05-27 00:00:00.000Z",
-                    "end_date": "2022-05-27 00:00:00.000Z",
-                    "tags": [
-                        "2D",
-                        "etc",
-                        "etc",
-                    ],
-                    "members": [
-                        {
-                            "id": 1,
-                            "name": "오창한",
-                            "part_index": 1
-                        },
-                        {
-                            "id": 2,
-                            "name": "조승빈",
-                            "part_index": 1
-                        },
-                    ],
-                    "platform": [
-                        "Android",
-                        "iOS",
-                        "Web"
-                    ],
-                    "pm": {
-                        "id": 1,
-                        "name": "오창한",
-                        "part_index": 1
-                    }
-                },
-                {
-                    "id": 1,
-                    "type": 0,
-                    "name": "PCube+",
-                    "is_end": False,
-                    "start_date": "2022-05-27 00:00:00.000Z",
-                    "end_date": "2022-05-27 00:00:00.000Z",
-                    "tags": [
-                        "2D",
-                        "etc",
-                        "etc",
-                    ],
-                    "members": [
-                        {
-                            "id": 1,
-                            "name": "오창한",
-                            "part_index": 1
-                        },
-                        {
-                            "id": 2,
-                            "name": "조승빈",
-                            "part_index": 1
-                        },
-                    ],
-                    "platform": [
-                        "Android",
-                        "iOS",
-                        "Web"
-                    ],
-                    "pm": {
-                        "id": 1,
-                        "name": "오창한",
-                        "part_index": 1
-                    }
-                }
-            ],
-            "promotion_progress": {
-                "semester": False,
-                "curriculum": {
-                    "completed": False,
-                    "current_curriculum": "커리큘럼 이름",
-                    "start_date": "2022-05-27 00:00:00.000Z",
-                    "end_date": "2022-05-27 00:00:00.000Z",
-                },
-                "progress": 0.5,
-                "project": {
-                    "attended": False,
-                    "type": 0
-                },
-                "workshop": {
-                    "count": 1,
-                    "complete": False
-                },
-                "vote": False,
-            },
-            "recent_seminar": [
-                {
-                    "id": 1,
-                    "type": 0,
-                    "date": "2020-05-27 00:00:00.000",
-                    "description": "",
-                },
-                {
-                    "id": 1,
-                    "type": 0,
-                    "date": "2020-05-27 00:00:00.000",
-                    "description": "",
-                },
-            ],
-            "caution_list": [
-                {
-                    "id": 1,
-                    "type": 0,
-                    "warning_amount": 1.0,
-                    "description": "A 사유 어쩌고 저쩌고",
-                    "date": "2022-05-27 00:00:00.000"
-                },
-                {
-                    "id": 1,
-                    "type": 0,
-                    "warning_amount": 1.0,
-                    "description": "A 사유 어쩌고 저쩌고",
-                    "date": "2022-05-27 00:00:00.000"
-                }
-            ],
-        }
+        database = Database()
+        # 유저 테이블에서 해당 유저에 대한 정보 조회
+        # 추후에는 토큰 등을 받아서 어떤 사용자인지 인식하고, 해당 사용자에 대한 정보를 뿌려줄 예정
+        sql = f"SELECT * FROM users where id = {1};"    # 추후에는 1이 아닌 각 유저에 대한 식별자가 들어갈 예정
+        user_data = database.execute_one(sql)
 
-        return data
+        if not user_data:
+            return { 'message': '회원 정보를 찾지 못했어요 :(' }, 400
+
+        # 소속된 프로젝트(들)의 식별자 목록 조회
+        sql = f"SELECT project_id FROM project_members where user_id = {user_data['id']}"
+        project_id_list = database.execute_all(sql)
+
+        # 소속된 프로젝트(들)의 상세 정보 조회
+        project_data_list = []
+        for data in project_id_list:
+            id = data['project_id']
+            sql = f"SELECT * FROM projects where id = {id};"
+            project_data = database.execute_one(sql)
+
+            # 소속된 프로젝트(들)의 멤버 식별자 목록 조회
+            sql = f"SELECT * FROM project_members where project_id = {id};"
+            project_member_id_list = database.execute_all(sql)
+            
+            # 멤버 식별자 목록을 이용하여 각 멤버별 상세 정보 조회
+            members = []
+            for member_id in project_member_id_list:
+                sql = f"SELECT * FROM users where id = {member_id};"
+                member_data = database.execute_one(sql)
+                members.append(member_data)
+            project_data['members'] = members
+
+            project_data_list.append(project_data)
+        
+        user_data['projects'] = project_data_list
+
+        return user_data, 200
 
 @user.route("/notification")
 class UserNotification(Resource):
