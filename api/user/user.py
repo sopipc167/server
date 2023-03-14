@@ -31,8 +31,8 @@ class UserProfile(Resource):
             project_data = database.execute_one(sql)
 
             # Date를 String으로 형 변환함
-            project_data['start_date'] = datetime.strftime(project_data['start_date'])
-            project_data['end_date'] = datetime.strftime(project_data['end_date'])
+            project_data['start_date'] = project_data['start_date'].strftime('%Y/%m/%d')
+            project_data['end_date'] = project_data['end_date'].strftime('%Y/%m/%d')
 
             # 소속된 프로젝트(들)의 멤버 식별자 목록 조회
             sql = f"SELECT * FROM project_members where project_id = {id};"
