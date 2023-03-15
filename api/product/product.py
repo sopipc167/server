@@ -52,13 +52,13 @@ class SpecificProductList(Resource):
 class RentProduct(Resource):
     def post(self, product_code):
         database = Database()
-        sql = f"SELECT * FROM products where code = {product_code}"
+        sql = f"SELECT * FROM products where code = {product_code};"
         product = database.execute_one(sql)
         
         if product['is_available']: # 물품 대여에 대한 로직
             # 물품 정보를 대여중인 상태로 업데이트
             status = "대여중"
-            sql = f"UPDATE products SET is_available = {False}, status = {status} WHERE code = {product_code};"
+            sql = f"UPDATE products SET is_available = {0}, status = {status} WHERE code = {product_code};"
             database.execute(sql)
             
             # 물품 대여 내역 추가
@@ -70,11 +70,11 @@ class RentProduct(Resource):
             database.execute(sql)
 
             # 물품 정보가 변경 되었으므로 물품 상세 정보 재조회
-            sql = f"SELECT * FROM products where code = {product_code};"
+            sql = f"SELECT * FROM products WHERE code = {product_code};"
             product_data = database.execute_one(sql)
 
             # 빌린 사람 이름 조회
-            sql = f"SELECT name FROM users where id = {2}"
+            sql = f"SELECT name FROM users WHERE id = {2}"
             rent_user = database.execute_one(sql)
 
             # 디데이 계산
