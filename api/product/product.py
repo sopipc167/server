@@ -52,29 +52,33 @@ class SpecificProductList(Resource):
 class RentProduct(Resource):
     def post(self, product_code):
         database = Database()
-        sql = f"SELECT * FROM products where code = {product_code}"
+        sql = f"SELECT * FROM products WHERE code = '{product_code}';"
         product = database.execute_one(sql)
+        user_id_temp = 2
         
         if product['is_available']: # 물품 대여에 대한 로직
             # 물품 정보를 대여중인 상태로 업데이트
             status = "대여중"
-            sql = f"UPDATE products SET is_available = {False}, status = {status} WHERE code = {product_code};"
+            sql = f"UPDATE products SET is_available = {0}, status = '{status}' WHERE code = '{product_code}';"
             database.execute(sql)
-            
+            database.commit()
+
             # 물품 대여 내역 추가
             now = datetime.now()
             rent_day = now.date()
-            deadline = rent_day + timedelta(30)
+            deadline = rent_day + timedelta(days=30)
             status_value = 0
-            sql = f"INSERT INTO rent_list VALUES({product_code}, {1}, {deadline}, {rent_day}, {status_value});"
+            sql = f"INSERT INTO rent_list(product_code, user_id, deadline, rent_day, status) "\
+                f"VALUES('{product_code}', {user_id_temp}, '{deadline}', '{rent_day}', '{status_value}');"
             database.execute(sql)
+            database.commit()
 
             # 물품 정보가 변경 되었으므로 물품 상세 정보 재조회
-            sql = f"SELECT * FROM products where code = {product_code};"
+            sql = f"SELECT * FROM products WHERE code = '{product_code}';"
             product_data = database.execute_one(sql)
 
             # 빌린 사람 이름 조회
-            sql = f"SELECT name FROM users where id = {2}"
+            sql = f"SELECT name FROM users WHERE id = {user_id_temp}"
             rent_user = database.execute_one(sql)
 
             # 디데이 계산
