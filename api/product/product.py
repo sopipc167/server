@@ -120,7 +120,7 @@ class ReturnProduct(Resource):
             if product['status'] == "대여중":
                 # 맞는 대여 내역이 있는지 검증 
                 sql = f"SELECT * FROM rent_list "\
-                    f"WHERE product_code = '{product_code}' and user_id = {user_id} and return_day = NULL;"
+                    f"WHERE product_code = '{product_code}' and user_id = {user_id} and return_day is null;"
                 rent_data = database.execute_one(sql)
                 if not rent_data:
                     return { 'message': '데이터가 올바르지 않아요 :(\n지속적으로 발생 시 문의해주세요!' }, 500
@@ -130,7 +130,7 @@ class ReturnProduct(Resource):
                 return_day = now.date()
                 status = "대여 가능"
                 sql = f"UPDATE rent_list SET return_day = '{return_day}' "\
-                    f"WHERE product_code = '{product_code}' and user_id = {user_id} and return_day = None;"
+                    f"WHERE product_code = '{product_code}' and user_id = {user_id} and return_day is null;"
                 database.execute(sql)
 
                 # 물품 정보 수정
