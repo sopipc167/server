@@ -47,7 +47,6 @@ class SpecificProductList(Resource):
         else:
             return product_list, 200
 
-# 구현중
 @product.route("/rent/<string:product_code>")
 class RentProduct(Resource):
     def post(self, product_code):
@@ -67,9 +66,8 @@ class RentProduct(Resource):
             now = datetime.now()
             rent_day = now.date()
             deadline = rent_day + timedelta(days=30)
-            status_value = 0
-            sql = f"INSERT INTO rent_list(product_code, user_id, deadline, rent_day, status) "\
-                f"VALUES('{product_code}', {user_id_temp}, '{deadline}', '{rent_day}', '{status_value}');"
+            sql = f"INSERT INTO rent_list(product_code, user_id, deadline, rent_day, return_day) "\
+                f"VALUES('{product_code}', {user_id_temp}, '{deadline}', '{rent_day}', {None};"
             database.execute(sql)
             database.commit()
 
@@ -88,16 +86,75 @@ class RentProduct(Resource):
             product_data['deadline'] = deadline.strftime('%Y/%m/%d')
             product_data['rent_day'] = rent_day.strftime('%Y/%m/%d')
             product_data['d_day'] = d_day
-            product_data['status'] = { 'value': '대여중', 'rent_user': rent_user['name'] }
+            product_data['return_day'] = None
+            product_data['status'] = { 'value': status, 'rent_user': rent_user['name'] }
 
             database.close()
             return product_data, 200
         else:
             database.close()
-            message = { 'message': '현재 대여가 불가능한 물품이에요 :(' }
+            message = {}
+            if not product:
+                message['message'] = '등록되지 않은 물품이에요 :('
+                message['value'] = 0
+            elif product['status'] == "대여중":
+                message["message"] = '현재 대여중인 물품이에요 :('
+                message['value'] = 1
+            else:
+                message['message'] = "현재 대여 불가능한 물품이에요 :("
+                message['value'] = 2
             return message, 400
 
 @product.route("/return/<string:product_code>")
 class ReturnProduct(Resource):
-    def get(self, product_code):
-        return {}, 200
+    def put(self, product_code):
+        database = Database()
+        sql = f"SELECT * FROM products WHERE code = {product_code};"
+        product = database.execute_one(sql)
+
+        # JWT 적용 전 임시 user_id 값
+        user_id = 2
+
+        # 물품 반납에 대한 로직
+        if not product['is_available']:
+            if product['status'] == "대여중":
+                # 맞는 대여 내역이 있는지 검증 
+                sql = f"SELECT * FROM rent_list "\
+                    f"WHERE code = {product_code} and user_id = {user_id} and return_day = {None};"
+                rent_data = database.execute_one(sql)
+                if not rent_data:
+                    return { 'message': '데이터가 올바르지 않아요 :(\n지속적으로 발생 시 문의해주세요!' }, 500
+                
+                # 물품 대여 내역에 반납일자 반영
+                now = datetime.now()
+                return_day = now.date()
+                status = "대여 가능"
+                sql = f"UPDATE rent_list SET return_day = '{return_day}' "\
+                    f"WHERE code = '{product_code}' and user_id = {user_id} and return_day = {None};"
+                database.execute(sql)
+
+                # 물품 정보 수정
+                sql = f"UPDATE products SET is_available = {1}, status = '{status}' WHERE code = {product_code};"
+                database.execute(sql)
+
+                # 물품 정보가 변경 되었으므로 물품 상세 정보 재조회
+                sql = f"SELECT * FROM products WHERE code = '{product_code}';"
+                product_data = database.execute_one(sql)
+
+                # 물품 정보에 대여 관련 정보 추가
+                product_data['deadline'] = rent_data['deadline'].strftime('%Y/%m/%d')
+                product_data['rent_day'] = rent_data['rent_day'].strftime('%Y/%m/%d')
+                product_data['d_day'] = None
+                product_data['return_day'] = return_day.strftime('%Y/%m/%d')
+                product_data['status'] = { 'value': status, 'rent_user': None }
+
+                database.close()
+
+                return product_data, 200    
+            else:
+                database.close()
+                return { 'message': '반납을 할 수 없는 물품이에요 :(' }, 400
+        else:
+            # 대여 가능한 경우
+            database.close()
+            return { 'message': '대여 중인 물품만 반납할 수 있어요 :(' }, 400
