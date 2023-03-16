@@ -132,10 +132,12 @@ class ReturnProduct(Resource):
                 sql = f"UPDATE rent_list SET return_day = '{return_day}' "\
                     f"WHERE product_code = '{product_code}' and user_id = {user_id} and return_day is null;"
                 database.execute(sql)
+                database.commit()
 
                 # 물품 정보 수정
                 sql = f"UPDATE products SET is_available = {1}, status = '{status}' WHERE code = '{product_code}';"
                 database.execute(sql)
+                database.commit()
 
                 # 물품 정보가 변경 되었으므로 물품 상세 정보 재조회
                 sql = f"SELECT * FROM products WHERE code = '{product_code}';"
