@@ -109,7 +109,7 @@ class RentProduct(Resource):
 class ReturnProduct(Resource):
     def put(self, product_code):
         database = Database()
-        sql = f"SELECT * FROM products WHERE code = {product_code};"
+        sql = f"SELECT * FROM products WHERE code = '{product_code}';"
         product = database.execute_one(sql)
 
         # JWT 적용 전 임시 user_id 값
@@ -120,7 +120,7 @@ class ReturnProduct(Resource):
             if product['status'] == "대여중":
                 # 맞는 대여 내역이 있는지 검증 
                 sql = f"SELECT * FROM rent_list "\
-                    f"WHERE code = {product_code} and user_id = {user_id} and return_day = {None};"
+                    f"WHERE code = '{product_code}' and user_id = {user_id} and return_day = {None};"
                 rent_data = database.execute_one(sql)
                 if not rent_data:
                     return { 'message': '데이터가 올바르지 않아요 :(\n지속적으로 발생 시 문의해주세요!' }, 500
@@ -134,7 +134,7 @@ class ReturnProduct(Resource):
                 database.execute(sql)
 
                 # 물품 정보 수정
-                sql = f"UPDATE products SET is_available = {1}, status = '{status}' WHERE code = {product_code};"
+                sql = f"UPDATE products SET is_available = {1}, status = '{status}' WHERE code = '{product_code}';"
                 database.execute(sql)
 
                 # 물품 정보가 변경 되었으므로 물품 상세 정보 재조회
