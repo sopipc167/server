@@ -67,7 +67,7 @@ class RentProduct(Resource):
             rent_day = now.date()
             deadline = rent_day + timedelta(days=30)
             sql = f"INSERT INTO rent_list(product_code, user_id, deadline, rent_day, return_day) "\
-                f"VALUES('{product_code}', {user_id_temp}, '{deadline}', '{rent_day}', NULL;"
+                f"VALUES('{product_code}', {user_id_temp}, '{deadline}', '{rent_day}', NULL);"
             database.execute(sql)
             database.commit()
 
