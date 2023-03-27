@@ -36,6 +36,7 @@ class ProjectListAPI(Resource):
                 for member in members:
                     sql = f"SELECT * FROM users WHERE id = {member['user_id']};"
                     user_data = database.execute_one(sql)
+                    user_data['part_index'] = user_data.pop()
                     del user_data['profile_image']
                     # 프로젝트 PM (Member) 추가
                     if member['is_pm']:
