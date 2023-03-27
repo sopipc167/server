@@ -14,7 +14,6 @@ class ProjectListAPI(Resource):
         
         if not project_list:    # 프로젝트가 하나도 없을 때의 처리
             database.close()
-            
             return [], 200
         else:
             for idx, value in enumerate(project_list):
@@ -22,14 +21,29 @@ class ProjectListAPI(Resource):
                 project_list[idx]['start_date'] = value['start_date'].strftime('%Y/%m/%d')
                 project_list[idx]['end_date'] = value['end_date'].strftime('%Y/%m/%d')
                 
+                # 플랫폼 정보를 List<String>의 형식으로 변환
+                platform_list = project_list[id]['platform'].split(',')
+                project_list[idx]['platform'] = { 'platform': platform_list }
+
                 # 팀원 모집 여부와 문의 가능 여부를 Boolean 값으로 변경
                 project_list[idx]['is_finding_member'] = True if value['is_finding_member'] else False
                 project_list[idx]['is_able_inquiry'] = True if value['is_able_inquiry'] else False
-                
-                # 프로젝트 팀원 수 추가
-                sql = f"SELECT count(*) from project_members where project_id = {value['id']};"
-                member_count = database.execute_one(sql)
-                project_list[idx]['member_count'] = member_count['count(*)']
+
+                # 프로젝트 (List<Member>) 추가
+                sql = f"SELECT user_id, is_pm FROM project_members WHERE project_id = {project_list[idx]['id']};"
+                members = database.execute_all(sql)
+                member_list = []
+                for member in members:
+                    sql = f"SELECT * FROM users WHERE id = {member['user_id']};"
+                    user_data = database.execute_one(sql)
+                    del user_data['profile_image']
+                    # 프로젝트 PM (Member) 추가
+                    if member['is_pm']:
+                        project_list[idx]['pm'] = user_data
+                        continue
+                    # PM이 아닌 인원들만 추가
+                    member_list.append(user_data)
+                project_list[idx]['member'] = member_list
                 
             return project_list, 200
 
