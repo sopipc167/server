@@ -30,13 +30,13 @@ class ProjectListAPI(Resource):
                 project_list[idx]['is_able_inquiry'] = True if value['is_able_inquiry'] else False
 
                 # 프로젝트 (List<Member>) 추가
-                sql = f"SELECT user_id, is_pm FROM project_members WHERE project_id = {project_list[idx]['id']};"
+                sql = f"SELECT * FROM project_members WHERE project_id = {project_list[idx]['id']};"
                 members = database.execute_all(sql)
                 member_list = []
                 for member in members:
                     sql = f"SELECT * FROM users WHERE id = {member['user_id']};"
                     user_data = database.execute_one(sql)
-                    user_data['part_index'] = user_data.pop()
+                    user_data['part_index'] = user_data.pop('part')
                     del user_data['profile_image']
                     # 프로젝트 PM (Member) 추가
                     if member['is_pm']:
