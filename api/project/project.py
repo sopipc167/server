@@ -18,33 +18,37 @@ class ProjectListAPI(Resource):
         else:
             for idx, value in enumerate(project_list):
                 # 날짜를 문자열 날짜로 변경
-                project_list[idx]['start_date'] = value['start_date'].strftime('%Y/%m/%d')
-                project_list[idx]['end_date'] = value['end_date'].strftime('%Y/%m/%d')
+                project_list[idx]['start_date'] = value['start_date'].strftime('%Y-%m-%d')
+                project_list[idx]['end_date'] = value['end_date'].strftime('%Y-%m-%d')
                 
                 # 플랫폼 정보를 List<String>의 형식으로 변환
-                platform_list = project_list[id]['platform'].split(',')
-                project_list[idx]['platform'] = { 'platform': platform_list }
+                platform_list = project_list[idx]['platform'].split(',')
+                project_list[idx]['platform'] = platform_list
 
                 # 팀원 모집 여부와 문의 가능 여부를 Boolean 값으로 변경
                 project_list[idx]['is_finding_member'] = True if value['is_finding_member'] else False
                 project_list[idx]['is_able_inquiry'] = True if value['is_able_inquiry'] else False
 
-                # 프로젝트 (List<Member>) 추가
+                # PM 초기화
+                project_list[idx]['pm'] = None
+
+                # 프로젝트 팀원 목록 불러오기
                 sql = f"SELECT * FROM project_members WHERE project_id = {project_list[idx]['id']};"
                 members = database.execute_all(sql)
+                
+                # 프로젝트 팀원 별 상세 정보를 불러오고 members와 pm에 각각 할당
                 member_list = []
                 for member in members:
                     sql = f"SELECT * FROM users WHERE id = {member['user_id']};"
                     user_data = database.execute_one(sql)
                     user_data['part_index'] = user_data.pop('part')
                     del user_data['profile_image']
-                    # 프로젝트 PM (Member) 추가
+                    # PM이면 pm에 따로 추가, PM이 아니면 members에 추가
                     if member['is_pm']:
                         project_list[idx]['pm'] = user_data
-                        continue
-                    # PM이 아닌 인원들만 추가
-                    member_list.append(user_data)
-                project_list[idx]['member'] = member_list
+                    else:
+                        member_list.append(user_data)
+                project_list[idx]['members'] = member_list
                 
             return project_list, 200
 
