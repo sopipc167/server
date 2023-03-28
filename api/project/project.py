@@ -34,15 +34,16 @@ class ProjectListAPI(Resource):
 
                 # 프로젝트 팀원 목록 불러오기
                 sql = f"SELECT * FROM project_members WHERE project_id = {project_list[idx]['id']};"
-                members = database.execute_all(sql)
+                project_members = database.execute_all(sql)
                 
                 # 프로젝트 팀원 별 상세 정보를 불러오고 members와 pm에 각각 할당
                 member_list = []
-                for member in members:
+                for member in project_members:
                     sql = f"SELECT * FROM users WHERE id = {member['user_id']};"
                     user_data = database.execute_one(sql)
-                    user_data['part_index'] = user_data.pop('part')
-                    del user_data['profile_image']
+                    # 동아리에 가입되어 있는 여부를 Boolean 값으로 변경
+                    user_data['is_signed'] = True if user_data['is_signed'] else False
+
                     # PM이면 pm에 따로 추가, PM이 아니면 members에 추가
                     if member['is_pm']:
                         project_list[idx]['pm'] = user_data

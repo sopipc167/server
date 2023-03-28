@@ -9,7 +9,7 @@ product = Namespace('product')
 class Product(Resource):
     def get(self, product_code):
         database = Database()
-        sql = f"SELECT * FROM products where code = {product_code};"
+        sql = f"SELECT * FROM products WHERE code = '{product_code}';"
         product = database.execute_one(sql)
         database.close()
         
@@ -37,7 +37,7 @@ class ProductList(Resource):
 class SpecificProductList(Resource):
     def get(self, product_name):
         database = Database()
-        sql = f"SELECT * FROM products where name = {product_name};"
+        sql = f"SELECT * FROM products where name = '{product_name}';"
         product_list = database.execute_all(sql)
         database.close()
         
@@ -82,15 +82,20 @@ class RentProduct(Resource):
             # 디데이 계산
             d_day = (deadline - rent_day).days
 
-            # 물품 정보에 대여 관련 정보 추가
-            product_data['deadline'] = deadline.strftime('%Y/%m/%d')
-            product_data['rent_day'] = rent_day.strftime('%Y/%m/%d')
-            product_data['d_day'] = d_day
-            product_data['return_day'] = None
+            # 물품 상태 정보 추가
             product_data['status'] = { 'value': status, 'rent_user': rent_user['name'] }
 
+            # 대여 정보에 물품 정보 모두 추가
+            rent_data = { 'product': product_data }
+
+            # 대여 관련 정보 추가
+            rent_data['deadline'] = deadline.strftime('%Y-%m-%d')
+            rent_data['rent_day'] = rent_day.strftime('%Y-%m-%d')
+            rent_data['d_day'] = d_day
+            rent_data['return_day'] = None
+
             database.close()
-            return product_data, 200
+            return rent_data, 200
         else:
             database.close()
             message = {}
@@ -143,16 +148,21 @@ class ReturnProduct(Resource):
                 sql = f"SELECT * FROM products WHERE code = '{product_code}';"
                 product_data = database.execute_one(sql)
 
-                # 물품 정보에 대여 관련 정보 추가
-                product_data['deadline'] = rent_data['deadline'].strftime('%Y/%m/%d')
-                product_data['rent_day'] = rent_data['rent_day'].strftime('%Y/%m/%d')
-                product_data['d_day'] = None
-                product_data['return_day'] = return_day.strftime('%Y/%m/%d')
+                # 물품 상태 정보 추가
                 product_data['status'] = { 'value': status, 'rent_user': None }
+
+                # 반납 정보에 물품 정보 모두 추가
+                return_data = { 'product': product_data }
+
+                # 물품 정보에 대여 관련 정보 추가
+                return_data['deadline'] = rent_data['deadline'].strftime('%Y-%m-%d')
+                return_data['rent_day'] = rent_data['rent_day'].strftime('%Y-%m-%d')
+                return_data['d_day'] = None
+                return_data['return_day'] = return_day.strftime('%Y-%m-%d')
 
                 database.close()
 
-                return product_data, 200    
+                return return_data, 200    
             else:
                 database.close()
                 return { 'message': '반납을 할 수 없는 물품이에요 :(' }, 400
