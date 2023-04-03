@@ -11,6 +11,17 @@ class Product(Resource):
         database = Database()
         sql = f"SELECT * FROM products WHERE code = '{product_code}';"
         product = database.execute_one(sql)
+        
+        product['status'] = { 'value': product['status'], 'rent_user': None }
+            
+        sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day is null;"
+        rent_log = database.execute_one(sql)
+            
+        if rent_log:
+            sql = f"SELECT name FROM users WHERE id = {rent_log['user_id']};"
+            rent_user = database.execute_one(sql)
+            product['status']['rent_user'] = rent_user['name']
+        
         database.close()
         
         if not product:     # 물품이 없을 때의 처리
@@ -25,6 +36,18 @@ class ProductList(Resource):
         database = Database()
         sql = f"SELECT * FROM products;"
         product_list = database.execute_all(sql)
+        
+        for idx, product in enumerate(product_list):
+            product_list[idx]['status'] = { 'value': product['status'], 'rent_user': None }
+            
+            sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day is null;"
+            rent_log = database.execute_one(sql)
+            
+            if rent_log:
+                sql = f"SELECT name FROM users WHERE id = {rent_log['user_id']};"
+                rent_user = database.execute_one(sql)
+                product_list[idx]['status']['rent_user'] = rent_user['name']
+        
         database.close()
         
         if not product_list:
@@ -37,8 +60,20 @@ class ProductList(Resource):
 class SpecificProductList(Resource):
     def get(self, product_name):
         database = Database()
-        sql = f"SELECT * FROM products where name = '{product_name}';"
+        sql = f"SELECT * FROM products WHERE name LIKE '%%{product_name}%%'"
         product_list = database.execute_all(sql)
+        
+        for idx, product in enumerate(product_list):
+            product_list[idx]['status'] = { 'value': product['status'], 'rent_user': None }
+            
+            sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day is null;"
+            rent_log = database.execute_one(sql)
+            
+            if rent_log:
+                sql = f"SELECT name FROM users WHERE id = {rent_log['user_id']};"
+                rent_user = database.execute_one(sql)
+                product_list[idx]['status']['rent_user'] = rent_user['name']
+                
         database.close()
         
         if not product_list:

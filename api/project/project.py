@@ -39,8 +39,10 @@ class ProjectListAPI(Resource):
                 # 프로젝트 팀원 별 상세 정보를 불러오고 members와 pm에 각각 할당
                 member_list = []
                 for member in project_members:
+                    # 유저 상세 정보 조회
                     sql = f"SELECT * FROM users WHERE id = {member['user_id']};"
                     user_data = database.execute_one(sql)
+                    
                     # 동아리에 가입되어 있는 여부를 Boolean 값으로 변경
                     user_data['is_signed'] = True if user_data['is_signed'] else False
 
