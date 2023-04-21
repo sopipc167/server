@@ -7,8 +7,7 @@ seminar = Namespace('seminar')
 @seminar.route('/<int:user_id>')
 class SeminarUserAPI(Resource):
     def get(self, user_id):
-        
-        #데이터베이스에서 user_id값에 맞는 세미나 목록 불러오기
+        # 데이터베이스에서 user_id값에 맞는 세미나 목록 불러오기
         database = Database()
         sql = f"select * from seminars where user_id = {user_id}"
         seminar_list = database.execute_all(sql)
