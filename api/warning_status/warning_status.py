@@ -42,7 +42,7 @@ class WarningStatusUserAPI(Resource):
 
         return warning_status, 200
 
-@warning_status.route('/<int:warning_status_id/modify')
+@warning_status.route('/<int:warning_status_id>/modify')
 class WarningStatusEditAPI(Resource):
     # 경고 현황 수정
     def put(self, warning_status_id):
