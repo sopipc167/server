@@ -32,6 +32,11 @@ class WarningStatusUserAPI(Resource):
         warning_status = request.get_json()
         # user_id 추가
         warning_status['user_id'] = user_id
+        # 종류를 int로 매핑
+        for key, value in WARNING_CATEGORY.items():
+            if value == warning_status['category']:
+                warning_status['category'] = key
+                break
 
         # 데이터베이스에 추가
         database = Database()
@@ -46,10 +51,10 @@ class WarningStatusUserAPI(Resource):
 class WarningStatusEditAPI(Resource):
     # 경고 현황 수정
     def put(self, warning_status_id):
-        body_data = request.get_json()
+        warning_status = request.get_json()
         pass
 
     # 경고 현황 삭제
     def delete(self, warning_status_id):
-        body_data = request.get_json()
+        warning_status = request.get_json()
         pass
