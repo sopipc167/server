@@ -15,7 +15,7 @@ api.add_namespace(user, '/user')
 api.add_namespace(product, '/product')
 api.add_namespace(project, '/project')
 api.add_namespace(seminar, '/seminar')
-api.add_namespace(warning_status, '/warningStatus')
+api.add_namespace(warning_status, '/warning-status')
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
