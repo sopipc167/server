@@ -9,7 +9,7 @@ WARNING_CATEGORY = {-2: '경고 차감', -1: '주의 차감', 1: '주의 부여'
 
 # category를 문자열로 변환
 def wc_int_to_str(category):
-    return WARNING_CATEGORY.get(category, "유효하지 않은 값")
+    return WARNING_CATEGORY.get(category, None)
 
 # category를 index로 변환
 def wc_str_to_int(category):
@@ -48,8 +48,9 @@ class WarningStatusUserAPI(Resource):
 
         # 경고 현황을 DB에 추가
         database = Database()
-        func = lambda x : "'" + x + "'" if isinstance(x, str) else str(x)
-        sql = f"INSERT INTO warning_status ({', '.join(warning_status.keys())}) VALUES ({', '.join(map(func, warning_status.values()))});"
+        sql = f"INSERT INTO warning_status "\
+            f"VALUES({warning_status['id']}, {warning_status['user_id']}, {warning_status['category']}, "\
+            f"'{warning_status['message']}', '{warning_status['date']}', '{warning_status['etc_message']}');"
         database.execute(sql)
         database.commit()
         database.close()
@@ -63,19 +64,21 @@ class WarningStatusEditAPI(Resource):
         # Body 데이터 받아오기
         warning_status = request.get_json()
 
-        # category를 index로 변환
-        if 'category' in warning_status:
-            warning_status['category'] = wc_str_to_int(warning_status['category'])
+        # id 설정, category를 index로 변환
+        warning_status['id'] = warning_status_id
+        warning_status['category'] = wc_str_to_int(warning_status['category'])
 
         # 수정된 사항을 DB에 반영
         database = Database()
-        set_values = ', '.join([f"{column} = '{value}'" for column, value in warning_status.items()])
-        sql = f"UPDATE warning_status SET {set_values} WHERE id = {warning_status_id};"
+        sql = f"UPDATE warning_status SET "\
+        f"id = {warning_status['id']}, user_id = {warning_status['user_id']}, category = {warning_status['category']}, "\
+        f"message = '{warning_status['message']}', date = '{warning_status['date']}', etc_message = '{warning_status['etc_message']}' "\
+        f"WHERE id = {warning_status_id};"
         database.execute(sql)
         database.commit()
         database.close()
 
-        return {'message': '경고 정보를 수정하였습니다.'}, 200
+        return {'message': '경고 정보를 수정했어요 :)'}, 200
 
     # 경고 현황 삭제
     def delete(self, warning_status_id):
@@ -86,4 +89,4 @@ class WarningStatusEditAPI(Resource):
         database.commit()
         database.close()
 
-        return {'message': '경고 정보를 삭제하였습니다.'}, 200
+        return {'message': '경고 정보를 삭제했어요 :)'}, 200
