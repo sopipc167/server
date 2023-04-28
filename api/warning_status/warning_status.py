@@ -24,7 +24,7 @@ class WarningStatusUserAPI(Resource):
     def get(self, user_id):
         # 데이터베이스에서 user_id값에 맞는 경고 목록 불러오기
         database = Database()
-        sql = f"select * from warning_status where user_id = {user_id}"
+        sql = f"SELECT * FROM warning_status WHERE user_id = {user_id};"
         warning_status_list = database.execute_all(sql)
         database.close()
 
@@ -50,7 +50,7 @@ class WarningStatusUserAPI(Resource):
         # 데이터베이스에 추가
         database = Database()
         func = lambda x : "'" + x + "'" if isinstance(x, str) else str(x)
-        sql = f"insert into warning_status ({', '.join(warning_status.keys())}) values ({', '.join(map(func, warning_status.values()))})"
+        sql = f"INSERT INTO warning_status ({', '.join(warning_status.keys())}) VALUES ({', '.join(map(func, warning_status.values()))});"
         database.execute(sql)
         database.commit()
         database.close()
@@ -70,7 +70,7 @@ class WarningStatusEditAPI(Resource):
         # 데이터베이스에 반영
         database = Database()
         set_values = ', '.join([f"{column} = '{value}'" for column, value in warning_status.items()])
-        sql = f"update warning_status set {set_values} where id = {warning_status_id}"
+        sql = f"UPDATE warning_status SET {set_values} WHERE id = {warning_status_id};"
         database.execute(sql)
         database.commit()
         database.close()
@@ -80,7 +80,7 @@ class WarningStatusEditAPI(Resource):
     def delete(self, warning_status_id):
         # 데이터베이스에서 삭제
         database = Database()
-        sql = f"delete from warning_status where id = {warning_status_id}"
+        sql = f"DELETE FROM warning_status WHERE id = {warning_status_id};"
         database.execute(sql)
         database.commit()
         database.close()
