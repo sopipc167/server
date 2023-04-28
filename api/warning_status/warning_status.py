@@ -16,7 +16,7 @@ def wc_str_to_int(category):
     for key, value in WARNING_CATEGORY.items():
         if value == category:
             return key
-    return -999 # 임시로 해놓음.
+    return None
 
 @warning_status.route('/<int:user_id>')
 class WarningStatusUserAPI(Resource):
