@@ -37,7 +37,7 @@ class SeminarUserAPI(Resource):
                 seminar_list[idx]['category'] = sc_int_to_str(seminar['category'])
             return seminar_list, 200
         
-    # 세미나 추가
+    # 세미나 정보 추가
     def post(self, user_id):
         # Body 데이터 읽어오기
         seminar = request.get_json()
@@ -56,3 +56,38 @@ class SeminarUserAPI(Resource):
         database.close()
 
         return seminar, 200
+    
+
+@seminar.route('/<int:seminar_id>/modify')
+class SeminarEditAPI(Resource):
+    # 세미나 정보 수정
+    def put(self, seminar_id):
+        # Body 데이터 받아오기
+        seminar = request.get_json()
+
+        # id 설정, category를 index로 변환
+        seminar['id'] = seminar_id
+        seminar['category'] = sc_str_to_int(seminar['category'])
+
+        # 수정된 사항을 DB에 반영
+        database = Database()
+        sql = f"UPDATE seminars SET "\
+        f"id = {seminar['id']}, user_id = {seminar['user_id']}, title = '{seminar['title']}', "\
+        f"url = '{seminar['url']}', category = {seminar['category']}, date = '{seminar['date']}' "\
+        f"WHERE id = {seminar_id};"
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '세미나 정보를 수정했어요 :)'}, 200
+
+    # 세미나 정보 삭제
+    def delete(self, seminar_id):
+        # 세미나 정보를 DB에서 삭제
+        database = Database()
+        sql = f"DELETE FROM seminars WHERE id = {seminar_id};"
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '세미나 정보를 삭제했어요 :)'}, 200
