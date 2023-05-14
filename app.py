@@ -6,6 +6,7 @@ from api.product.product import product
 from api.project.project import project
 from api.seminar.seminar import seminar
 from api.warning_status.warning_status import warning_status
+from api.membership_fee.membership_fee import membership_fee
 
 app = Flask(__name__)
 api = Api(app)
@@ -16,6 +17,7 @@ api.add_namespace(product, '/product')
 api.add_namespace(project, '/project')
 api.add_namespace(seminar, '/seminar')
 api.add_namespace(warning_status, '/warning-status')
+api.add_namespace(membership_fee, '/membership-fee')
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
