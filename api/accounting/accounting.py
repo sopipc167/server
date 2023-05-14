@@ -5,6 +5,20 @@ from datetime import datetime
 
 accounting = Namespace('accounting')
 
+# category(내역 유형)
+ACCOUNTING_CATEGORY = {0: '문의 불가', 1: '문의 가능'}
+
+# category를 문자열로 변환
+def ac_int_to_str(category):
+    return ACCOUNTING_CATEGORY.get(category, None)
+
+# category를 index로 변환
+def ac_str_to_int(category):
+    for key, value in ACCOUNTING_CATEGORY.items():
+        if value == category:
+            return key
+    return None
+
 # 납부 상태 반환
 def get_payment_state(monthly_payment):
     if monthly_payment['payment_date']:
@@ -19,7 +33,7 @@ def get_payment_state(monthly_payment):
         else:
             return "미납"
         
-# 회원 등급 및 활동 여부에 따른 회비 반환
+# 회원 등급 및 학년에 따른 회비 반환
 def get_amount(user_info):
     if user_info['level'] == 0 and user_info['grade'] == 4: 
         return 3000
@@ -28,6 +42,7 @@ def get_amount(user_info):
 
 @accounting.route('/<int:user_id>')
 class AccountingUserAPI(Resource):
+    # 회원의 월별 회비 납부 내역 얻기
     def get(self, user_id):
         database = Database()
 
@@ -35,7 +50,7 @@ class AccountingUserAPI(Resource):
         sql = f"SELECT mpp.date, start_day, end_day, mf.date as payment_date, amount "\
             f"FROM monthly_payment_periods mpp "\
             f"LEFT JOIN membership_fees mf "\
-            f"ON mf.user_id = {user_id} AND YEAR(mpp.date) = YEAR(mf.date) and MONTH(mpp.date) = MONTH(mf.date) "\
+            f"ON mf.user_id = {user_id} and year(mpp.date) = year(mf.date) and month(mpp.date) = month(mf.date) "\
             f"ORDER BY mpp.date;"
         monthly_payment_list = database.execute_all(sql)
 
@@ -72,3 +87,35 @@ class AccountingUserAPI(Resource):
                     monthly_payment_list[idx]['payment_date'] = monthly_payment['payment_date'].strftime('%Y-%m-%d')
 
             return monthly_payment_list, 200
+        
+@accounting.route('/total')
+class AccountingTotalAPI(Resource):
+    # 현재 계좌 내의 총 금액 얻기
+    def get(self):
+        # DB에있는 모든 내역의 금액의 합 계산하기
+        database = Database()
+        sql = "SELECT sum(amount) as total FROM accountings" 
+        accounting = database.execute_one(sql)
+        database.close()
+        accounting['total'] = int(accounting['total'])
+
+        return accounting, 200
+    
+@accounting.route('/list')
+class AccountingListAPI(Resource):
+    # 회비 내역 목록 얻기
+    def get(self):
+        # DB에서 전체 회비 내역 목록 불러오기
+        database = Database()
+        sql = "SELECT * FROM accountings"
+        accounting_list = database.execute_all(sql)
+        database.close()
+
+        if not accounting_list: # 회비 내역이 없을 때 처리
+            return [], 200
+        else:
+            for idx, accounting in enumerate(accounting_list):
+                # date 및 category를 문자열로 변환
+                accounting_list[idx]['date'] = accounting['date'].strftime('%Y-%m-%d')
+                accounting_list[idx]['category'] = ac_int_to_str(accounting['category'])
+            return accounting_list, 200
