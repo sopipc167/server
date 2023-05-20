@@ -8,6 +8,9 @@ accounting = Namespace('accounting')
 # category(내역 유형)
 ACCOUNTING_CATEGORY = {0: '문의 불가', 1: '문의 가능'}
 
+# payment_method(결제 수단)
+PAYMENT_METHOD = {0: '통장', 1: '금고'}
+
 # category를 문자열로 변환
 def ac_int_to_str(category):
     return ACCOUNTING_CATEGORY.get(category, None)
@@ -16,6 +19,17 @@ def ac_int_to_str(category):
 def ac_str_to_int(category):
     for key, value in ACCOUNTING_CATEGORY.items():
         if value == category:
+            return key
+    return None
+
+# payment_method를 문자열로 변환
+def pm_int_to_str(payment_method):
+    return PAYMENT_METHOD.get(payment_method, None)
+
+# payment_method를 index로 변환
+def pm_str_to_int(payment_method):
+    for key, value in PAYMENT_METHOD.items():
+        if value == payment_method:
             return key
     return None
 
@@ -115,7 +129,8 @@ class AccountingListAPI(Resource):
             return [], 200
         else:
             for idx, accounting in enumerate(accounting_list):
-                # date 및 category를 문자열로 변환
+                # date 및 category, payment_method를 문자열로 변환
                 accounting_list[idx]['date'] = accounting['date'].strftime('%Y-%m-%d')
                 accounting_list[idx]['category'] = ac_int_to_str(accounting['category'])
+                accounting_list[idx]['payment_method'] = pm_int_to_str(accounting['payment_method'])
             return accounting_list, 200
