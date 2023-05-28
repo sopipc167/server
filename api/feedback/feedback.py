@@ -4,30 +4,10 @@ from database.database import Database
 from datetime import datetime, timedelta
 
 feedback = Namespace('feedback')
-'''
-table feedback
-식별CODE|code       |BIGINT |-prk
-회원ID  |user_id    |BIGINT |
-익명    |is_anony   |BOOL   | -false
-제목    |title      |VARCHAR|
-내용    |content    |VARCHAR|
-답변여부|is_answered|BOOL    |-false
-     |
-    ---
-     O
-     |
-    ---
-     |
-table feedback_answer
-식별CODE    |code       |BIGINT |
-질문한회원ID|user_id    |BIGINT |
-답변        |answer     |VARCHAR|
-답변한회원ID|answer_id  |BIGINT |
-'''
+
 @feedback.route("/<int:feedback_code>")
 class FeedbackGetAPI(Resource): # 임원만(id) 볼 수 있어야함
-    def get(self, feedback_code):
-        
+    def get(self, feedback_code):       
         # Body 데이터 얻어오기 (user_id)
         body_data = request.get_json()
         user_id = body_data['user_id']
@@ -40,27 +20,26 @@ class FeedbackGetAPI(Resource): # 임원만(id) 볼 수 있어야함
         # 임원이 아닐 경우
         if not user_id:
             database.close()
-            return {'message': '피드백을 볼 수 있는 권한이 없습니다'}, 401
+            return {'message': '피드백을 볼 수 있는 권한이 없어요'}, 401
         
         # feedback이 하나도 없을 때의 처리
         if not feedback:
             database.close()
             return [], 200
         else:
-            if(feedback['is_anony']==1): # 익명 처리
+            if feedback['is_anony'] == 1: # 익명 처리
                 feedback['user_id'] = 0
             return feedback, 200
 @feedback.route("/list")
 class FeedbackListGetAPI(Resource): # 임원만(id) 볼 수 있어야함
     def get(self):
-        
         # Body 데이터 얻어오기 (user_id)
         body_data = request.get_json()
         user_id = body_data['user_id']
         
         # 임원이 아닐 경우
         if not user_id:
-            return {'message': '피드백을 볼 수 있는 권한이 없습니다'}, 401
+            return {'message': '피드백을 볼 수 있는 권한이 없어요'}, 401
         
         # 데이터베이스에서 feedback 목록을 불러옴
         database = Database()
@@ -73,14 +52,13 @@ class FeedbackListGetAPI(Resource): # 임원만(id) 볼 수 있어야함
             return [], 200
         else:
             for idx, value in enumerate(feedback_list): 
-                if(feedback_list[idx]['is_anony'] == 1): # 익명처리
+                if feedback_list[idx]['is_anony'] == 1: # 익명처리
                     feedback_list[idx]['user_id'] = 0
             return feedback_list, 200
                
-@feedback.route("/<int:feedback_code>/<bool:is_anony")
+@feedback.route("/<int:feedback_code>/<bool:is_anony>")
 class FeedbackPostAPI(Resource):
     def post(self, feedback_code, is_anony):
-        
         # Body 데이터 얻어오기
         body_data = request.get_json()
         user_id = body_data['user_id']
@@ -109,7 +87,6 @@ class FeedbackPostAPI(Resource):
 @feedback.route("/answer/<int:feedback_code>")
 class FeedbackAnswerAPI(Resource):
     def put(self, feedback_code):
-        
         # Body 데이터 얻어오기
         body_data = request.get_json()
         answer_id = body_data['user_id']
