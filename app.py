@@ -5,7 +5,7 @@ from api.user.user import user
 from api.product.product import product
 from api.project.project import project
 from api.seminar.seminar import seminar
-from api.warning_status.warning_status import warning_status
+from api.warning.warning import warning
 from api.accounting.accounting import accounting
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ api.add_namespace(user, '/user')
 api.add_namespace(product, '/product')
 api.add_namespace(project, '/project')
 api.add_namespace(seminar, '/seminar')
-api.add_namespace(warning_status, '/warning-status')
+api.add_namespace(warning, '/warning')
 api.add_namespace(accounting, '/accounting')
 
 if __name__ == "__main__":
