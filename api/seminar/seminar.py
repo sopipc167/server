@@ -24,7 +24,7 @@ class SeminarUserAPI(Resource):
     def get(self, user_id):
         # DB에서 user_id값에 맞는 세미나 목록 불러오기
         database = Database()
-        sql = f"SELECT * FROM seminars WHERE user_id = {user_id}"
+        sql = f"SELECT * FROM seminars WHERE user_id = {user_id};"
         seminar_list = database.execute_all(sql)
         database.close()
 
