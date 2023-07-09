@@ -17,17 +17,25 @@ USER_LEVEL_CATEGORY = {0: '정회원', 1: '수습회원'}
 # index 데이터를 문자열로 변경
 def convert_to_string(dictionary, index):
     return dictionary.get(index, None)
+
+# 작년 6월의 시작일을 문자열로 반환
+def get_start_month():
+    start_month = date(datetime.today().year - 1, 6, 1)
+    return start_month.strftime('%Y-%m-%d')
+
+# 금월의 시작일을 문자열로 반환
+def get_current_month():
+    current_month = date(datetime.today().year, datetime.today().month, 1)
+    return current_month.strftime('%Y-%m-%d')
     
 
 @accounting.route('/check')
 class MembershipFeeCheckAPI(Resource):
     # 월별 회비 납부 내역 얻기
     def get(self):
-        # 금월 및 작년 6월 날짜 구한 뒤 문자열로 변환 ('YYYY-MM-01' 형식)
-        current_month = date(datetime.today().year, datetime.today().month, 1)
-        start_month = date(current_month.year - 1, 6, 1)
-        current_month.strftime('%Y-%m-%d')
-        start_month.strftime('%Y-%m-%d')
+        # 금월 및 작년 6월 날짜 문자열로 얻기
+        current_month = get_current_month()
+        start_month = get_start_month()
         
         database = Database()
 
@@ -87,3 +95,86 @@ class MembershipFeeCheckAPI(Resource):
             return {}, 200
         else:
             return monthly_payment_list, 200
+
+
+@accounting.route('/period')
+class MembershipFeePeriodAPI(Resource):
+    # 전체 월별 회비 기간 얻기
+    def get(self):
+
+        # 금월 및 작년 6월 날짜 문자열로 얻기
+        current_month = get_current_month()
+        start_month = get_start_month()
+
+        database = Database()
+
+        # DB에서 월별 회비 납부 기간 불러오기
+        sql = f"SELECT date, start_day, end_day FROM monthly_payment_periods "\
+            f"WHERE date between '{start_month}' and '{current_month}' "\
+            f"ORDER BY date;"
+        
+        payment_period_list = database.execute_all(sql)
+
+        database.close()
+
+        if not payment_period_list: # 납부 기간이 없을 때 처리
+            return {}, 200
+        else:
+            # 납부 기간 내역의 날짜 데이터들을 문자열로 변경
+            for idx, payment_period in enumerate(payment_period_list):
+                payment_period_list[idx]['date'] = payment_period['date'].strftime('%Y-%m-%d')
+                payment_period_list[idx]['start_day'] = payment_period['start_day'].strftime('%Y-%m-%d')
+                payment_period_list[idx]['end_day'] = payment_period['end_day'].strftime('%Y-%m-%d')
+            
+            return payment_period_list, 200
+    
+    # 특정 달 회비 기간 생성하기
+    def post(self):
+        # Body 데이터 읽어오기
+        payment_period = request.get_json()
+
+        database = Database()
+
+        # 회비 기간 정보를 DB에 추가
+        sql = f"INSERT INTO monthly_payment_periods "\
+            f"VALUES('{payment_period['date']}', '{payment_period['start_day']}', '{payment_period['end_day']}');"
+        
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회비 기간을 설정했어요 :)'}, 200
+
+    # 특정 달 회비 기간 수정하기
+    def put(self):
+        # Body 데이터 읽어오기
+        payment_period = request.get_json()
+
+        database = Database()
+
+        # DB의 회비 기간 정보를 수정
+        sql = f"UPDATE monthly_payment_periods SET "\
+            f"start_day = '{payment_period['start_day']}', end_day = '{payment_period['end_day']}' "\
+            f"WHERE date = '{payment_period['date']}';"
+        
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회비 기간을 수정했어요 :)'}, 200
+    
+    # 특정 달 회비 기간 삭제하기
+    def delete(self):
+        # Body 데이터 읽어오기
+        payment_period = request.get_json()
+
+        database = Database()
+
+        # DB의 회비 기간 정보를 삭제
+        sql = f"DELETE FROM monthly_payment_periods WHERE date = '{payment_period['date']}';"
+        
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회비 기간을 삭제했어요 :)'}, 200
