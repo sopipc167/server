@@ -31,7 +31,7 @@ def get_total_amount(database):
     accounting = database.execute_one(sql)
     return int(accounting['total'])
 
-@accounting.route('/<int:user_id>')
+@accounting.route('/<user_id>')
 class AccountingUserAPI(Resource):
     # 회원의 월별 회비 납부 내역 얻기
     def get(self, user_id):
@@ -47,14 +47,17 @@ class AccountingUserAPI(Resource):
 
         # DB에서 user_id값에 맞는 월별 회비 납부 내역 불러오기 (작년 6월부터 현재 달까지)
         sql = f"SELECT date, amount, category FROM membership_fees "\
-            f"WHERE user_id = {user_id} "\
-            f"and date between '{start_month}' and '{current_month}';"
+            f"WHERE user_id = '{user_id}' "\
+            f"and date between '{start_month}' and '{current_month}' "\
+            f"ORDER BY date;"
         monthly_payment_list = database.execute_all(sql)
 
         # 금월 회비 납부 기간 불러오기
         sql = f"SELECT start_date, end_date FROM monthly_payment_periods "\
             f"WHERE date = '{current_month}';"
         payment_period = database.execute_one(sql)
+
+
         
         # 계좌 내의 총 금액 불러오기
         total_amount = get_total_amount(database)
