@@ -52,7 +52,7 @@ class AccountingUserAPI(Resource):
         monthly_payment_list = database.execute_all(sql)
 
         # 금월 회비 납부 기간 불러오기
-        sql = f"SELECT start_day, end_day FROM monthly_payment_periods "\
+        sql = f"SELECT start_date, end_date FROM monthly_payment_periods "\
             f"WHERE date = '{current_month}';"
         payment_period = database.execute_one(sql)
         
@@ -63,8 +63,8 @@ class AccountingUserAPI(Resource):
 
         # 납부 기간 문자열로 변환
         if payment_period:
-            payment_period['start_day'] = payment_period['start_day'].strftime('%Y-%m-%d')
-            payment_period['end_day'] = payment_period['end_day'].strftime('%Y-%m-%d')
+            payment_period['start_date'] = payment_period['start_date'].strftime('%Y-%m-%d')
+            payment_period['end_date'] = payment_period['end_date'].strftime('%Y-%m-%d')
 
         result_data = {'monthly_payment_list': monthly_payment_list, 'payment_period': payment_period, 'total_amount': total_amount}
 
