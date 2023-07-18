@@ -56,30 +56,33 @@ class AccountingUserAPI(Resource):
         sql = f"SELECT start_date, end_date FROM monthly_payment_periods "\
             f"WHERE date = '{current_month}';"
         payment_period = database.execute_one(sql)
-
-
         
         # 계좌 내의 총 금액 불러오기
         total_amount = get_total_amount(database)
 
         database.close()
 
+        # 금월 회비 납부 금액 얻기
+        payment_amount = None
+        if monthly_payment_list[-1]['date'] == current_month:
+            payment_amount = monthly_payment_list[-1]['amount']
+
         # 납부 기간 문자열로 변환
         if payment_period:
             payment_period['start_date'] = payment_period['start_date'].strftime('%Y-%m-%d')
             payment_period['end_date'] = payment_period['end_date'].strftime('%Y-%m-%d')
 
-        result_data = {'monthly_payment_list': monthly_payment_list, 'payment_period': payment_period, 'total_amount': total_amount}
+        payment_data = {'monthly_payment_list': monthly_payment_list, 'payment_period': payment_period, 'payment_amount': payment_amount, 'total_amount': total_amount}
 
         if not monthly_payment_list: # 납부 내역이 없을 때의 처리
-            return result_data, 200
+            return payment_data, 200
         else:
             for idx, monthly_payment in enumerate(monthly_payment_list):
                 # date 및 category를 문자열로 변환
                 monthly_payment_list[idx]['date'] = monthly_payment['date'].strftime('%Y-%m-%d')
                 monthly_payment_list[idx]['category'] = convert_to_string(MEMBERSHIP_FEE_CATEGORY, monthly_payment['category'])
 
-            return result_data, 200
+            return payment_data, 200
     
 @accounting.route('/list')
 class AccountingListAPI(Resource):
