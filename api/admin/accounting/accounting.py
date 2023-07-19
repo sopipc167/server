@@ -40,7 +40,7 @@ class MembershipFeeCheckAPI(Resource):
         database = Database()
 
         # DB에서 월별 회비 납부 기간 불러오기
-        sql = f"SELECT date, start_day, end_day FROM monthly_payment_periods "\
+        sql = f"SELECT date, start_date, end_date FROM monthly_payment_periods "\
             f"WHERE date between '{start_month}' and '{current_month}' "\
             f"ORDER BY date;"
         
@@ -59,8 +59,8 @@ class MembershipFeeCheckAPI(Resource):
         # 납부 기간 내역의 날짜 데이터들을 문자열로 변경
         for idx, payment_period in enumerate(payment_period_list):
             payment_period_list[idx]['date'] = payment_period['date'].strftime('%Y-%m-%d')
-            payment_period_list[idx]['start_day'] = payment_period['start_day'].strftime('%Y-%m-%d')
-            payment_period_list[idx]['end_day'] = payment_period['end_day'].strftime('%Y-%m-%d')
+            payment_period_list[idx]['start_date'] = payment_period['start_date'].strftime('%Y-%m-%d')
+            payment_period_list[idx]['end_date'] = payment_period['end_date'].strftime('%Y-%m-%d')
 
         # 회비 납부 내역의 날짜 및 index 데이터들을 문자열로 변경 
         for idx, user_payment in enumerate(user_payment_list):
@@ -109,7 +109,7 @@ class MembershipFeePeriodAPI(Resource):
         database = Database()
 
         # DB에서 월별 회비 납부 기간 불러오기
-        sql = f"SELECT date, start_day, end_day FROM monthly_payment_periods "\
+        sql = f"SELECT date, start_date, end_date FROM monthly_payment_periods "\
             f"WHERE date between '{start_month}' and '{current_month}' "\
             f"ORDER BY date;"
         
@@ -123,8 +123,8 @@ class MembershipFeePeriodAPI(Resource):
             # 납부 기간 내역의 날짜 데이터들을 문자열로 변경
             for idx, payment_period in enumerate(payment_period_list):
                 payment_period_list[idx]['date'] = payment_period['date'].strftime('%Y-%m-%d')
-                payment_period_list[idx]['start_day'] = payment_period['start_day'].strftime('%Y-%m-%d')
-                payment_period_list[idx]['end_day'] = payment_period['end_day'].strftime('%Y-%m-%d')
+                payment_period_list[idx]['start_date'] = payment_period['start_date'].strftime('%Y-%m-%d')
+                payment_period_list[idx]['end_date'] = payment_period['end_date'].strftime('%Y-%m-%d')
             
             return payment_period_list, 200
     
@@ -137,7 +137,7 @@ class MembershipFeePeriodAPI(Resource):
 
         # 회비 기간 정보를 DB에 추가
         sql = f"INSERT INTO monthly_payment_periods "\
-            f"VALUES('{payment_period['date']}', '{payment_period['start_day']}', '{payment_period['end_day']}');"
+            f"VALUES('{payment_period['date']}', '{payment_period['start_date']}', '{payment_period['end_date']}');"
         
         database.execute(sql)
         database.commit()
@@ -154,7 +154,7 @@ class MembershipFeePeriodAPI(Resource):
 
         # DB의 회비 기간 정보를 수정
         sql = f"UPDATE monthly_payment_periods SET "\
-            f"start_day = '{payment_period['start_day']}', end_day = '{payment_period['end_day']}' "\
+            f"start_date = '{payment_period['start_date']}', end_date = '{payment_period['end_date']}' "\
             f"WHERE date = '{payment_period['date']}';"
         
         database.execute(sql)
