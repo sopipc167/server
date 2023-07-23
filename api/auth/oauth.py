@@ -64,7 +64,7 @@ class NaverLogin(Resource):
         # 처음 가입하는 경우
         sql = f"INSERT INTO identifier VALUES('{naver_identifier}', '{user_id}', 0);"
         database.execute(sql)
-        sql = f"UPDATE users SET is_signed = 1 WHERE id = {user_id};"
+        sql = f"UPDATE users SET is_signed = 1 WHERE id = '{user_id}';"
         database.commit()
         database.close()
         
