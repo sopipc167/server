@@ -64,7 +64,7 @@ class AccountingUserAPI(Resource):
 
         # 금월 회비 납부 금액 얻기
         payment_amount = None
-        if monthly_payment_list[-1]['date'] == current_month:
+        if monthly_payment_list and monthly_payment_list[-1]['date'] == current_month:
             payment_amount = monthly_payment_list[-1]['amount']
 
         # 납부 기간 문자열로 변환
