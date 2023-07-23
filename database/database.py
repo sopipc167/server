@@ -18,6 +18,9 @@ class Database:
 
     def execute(self, query, args={}):
         self.cursor.execute(query, args)
+        
+    def execute_many(self, query, args=[]):
+        self.cursor.executemany(query, args)
 
     def execute_one(self, query, args={}):
         self.cursor.execute(query, args)
