@@ -9,6 +9,7 @@ from api.seminar.seminar import seminar
 from api.warning.warning import warning
 from api.accounting.accounting import accounting
 from api.home.home import home
+from api.admin.admin import admin
 from flask_jwt_extended import JWTManager
 import configparser
 import datetime
@@ -40,6 +41,9 @@ api.add_namespace(seminar, '/seminar')
 api.add_namespace(warning, '/warning')
 api.add_namespace(accounting, '/accounting')
 api.add_namespace(home, '/home')
+
+app.register_blueprint(admin)
+
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)

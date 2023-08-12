@@ -25,12 +25,6 @@ def convert_to_index(dictionary, string):
             return key
     return None
 
-# DB에있는 모든 내역의 금액의 합 계산하기
-def get_total_amount(database):
-    sql = "SELECT sum(amount) as total FROM accountings;" 
-    accounting = database.execute_one(sql)
-    return int(accounting['total'])
-
 @accounting.route('/<user_id>')
 class AccountingUserAPI(Resource):
     # 회원의 월별 회비 납부 내역 얻기
@@ -58,13 +52,14 @@ class AccountingUserAPI(Resource):
         payment_period = database.execute_one(sql)
         
         # 계좌 내의 총 금액 불러오기
-        total_amount = get_total_amount(database)
+        sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
+        total_amount = int(database.execute_one(sql)['value'])
 
         database.close()
 
         # 금월 회비 납부 금액 얻기
         payment_amount = None
-        if monthly_payment_list[-1]['date'] == current_month:
+        if monthly_payment_list and monthly_payment_list[-1]['date'] == current_month:
             payment_amount = monthly_payment_list[-1]['amount']
 
         # 납부 기간 문자열로 변환
@@ -95,7 +90,8 @@ class AccountingListAPI(Resource):
         accounting_list = database.execute_all(sql)
 
         # 계좌 내의 총 금액 불러오기
-        total_amount = get_total_amount(database)
+        sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
+        total_amount = int(database.execute_one(sql)['value'])
 
         database.close()
 
