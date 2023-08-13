@@ -12,14 +12,10 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         body_data = request.get_json()
         user_id = body_data['user_id']
 
-        # 임원이 아닐 경우
-        if not user_id:
-            return {'message': '피드백을 볼 수 있는 권한이 없어요'}, 401
-
         # 데이터베이스에서 feedback 목록을 불러옴
         database = Database()
         sql = f"SELECT * FROM feedback WHERE feedback_code = {feedback_code};"
-        feedback = database.execute_all(sql)
+        feedbvack = database.execute_all(sql)
 
         # feedback이 하나도 없을 때의 처리
         if not feedback:
@@ -40,24 +36,10 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         content = body_data['content']
         database = Database()
 
-        ''' #어째서 피드백이 존재할때의 처리를 하는 이유?
-        # feedback이 존재하는지 확인
-        
-        sql = f"SELECT * FROM feedback WHERE code = '{feedback_code}';"
-        feedback = database.execute_one(sql)
-
-        # feedback이 존재할 때의 처리
-        if feedback:
-            database.close()
-            return {'message': '이미 존재하는 피드백입니다.'}
-        '''
-
-        '''
         #피드백 개수를 세서 id를 할당함
         sql = f"SELECT COUNT(code) from feedback;"
         count = database.execute(sql)
         feedback_code = count
-        '''
 
         #만약 작성항목에 널값이 있는지 확인
         if (not title): #피드백 제목을 작성하지 않을때 예외 발생
@@ -75,14 +57,10 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
 
 
 @feedback.route("/list")
-class FeedbackListGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
+class FeedbackListGetAPI(Resource):
     def get(self):
         body_data = request.get_json()
         user_id = body_data['user_id']
-
-        # 임원이 아닐 경우
-        if not user_id:
-            return {'message': '피드백을 볼 수 있는 권한이 없어요'}, 401
 
         # 데이터베이스에서 feedback 목록을 불러옴
         database = Database()

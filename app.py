@@ -10,6 +10,7 @@ from api.accounting.accounting import accounting
 from api.home.home import home
 from api.admin.admin import admin
 from api.feedback.feedback import feedback
+from api.equipment.equipment import equipment
 
 app = Flask(__name__)
 api = Api(app)
@@ -23,6 +24,7 @@ api.add_namespace(warning, '/warning')
 api.add_namespace(accounting, '/accounting')
 api.add_namespace(home, '/home')
 api.add_namespace(feedback,'/feedback')
+api.add_namespace(equipment,'/equipment')
 
 app.register_blueprint(admin)
 
