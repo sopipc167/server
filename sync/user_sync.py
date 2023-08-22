@@ -38,14 +38,14 @@ class UserSync:
             data['id'] = data['id'] if data['id'] is not None and data['id'] != '' else hashlib.sha256(str(data['name'] + data['phone_number']).encode('utf-8')).hexdigest()
             
             # 그 외의 데이터 암호화
-            data['name'] = crypt.encrypt_str(str(data['name']))
-            data['univ'] = crypt.encrypt_str(str(data['univ']))
-            data['etc_message'] = crypt.encrypt_str(str(data['etc_message']))
-            data['absent_reason'] = crypt.encrypt_str(str(data['absent_reason']))
-            data['absent_detail_reason'] = crypt.encrypt_str(str(data['absent_detail_reason']))
-            data['phone_number'] = crypt.encrypt_str(str(data['phone_number']))
-            data['major'] = crypt.encrypt_str(str(data['major']))
-            data['student_id'] = crypt.encrypt_str(str(data['student_id']))
+            data['name'] = crypt.encrypt(str(data['name']))
+            data['univ'] = crypt.encrypt(str(data['univ']))
+            data['etc_message'] = crypt.encrypt(str(data['etc_message']))
+            data['absent_reason'] = crypt.encrypt(str(data['absent_reason']))
+            data['absent_detail_reason'] = crypt.encrypt(str(data['absent_detail_reason']))
+            data['phone_number'] = crypt.encrypt(str(data['phone_number']))
+            data['major'] = crypt.encrypt(str(data['major']))
+            data['student_id'] = crypt.encrypt(str(data['student_id']))
             
             # INT를 사용하는 데이터는 index로 변환
             data['rank'] = UserTool.rank_to_index(data['rank'])
