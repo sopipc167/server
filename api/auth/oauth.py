@@ -2,8 +2,11 @@ import configparser
 import requests
 import hashlib
 import re
-from flask import Flask, redirect, request
-from flask_restx import Resource, Api, Namespace
+from flask import Flask, request
+from flask_restx import Resource, Namespace
+from flask_jwt_extended import (
+    create_access_token, create_refresh_token
+)
 from database.database import Database
 
 config = configparser.ConfigParser()
@@ -54,12 +57,17 @@ class NaverLogin(Resource):
             database.close()
             return { 'message': '판도라큐브 회원 정보가 없어요 :(' }, 401
         
+        # 토큰 생성
+        access_token = create_access_token(identity=user_id)
+        refresh_token = create_refresh_token(identity=user_id)
+        token = { 'access_token': access_token, 'refresh_token': refresh_token }
+        
         # 판도라큐브 회원인 경우에 대한 처리
         is_signed = is_signed['is_signed']
         if is_signed:
             # 이미 PCube+에 가입한 경우에는 로그인으로 처리
             database.close()
-            return naver_data, 200
+            return token, 200
         
         # 처음 가입하는 경우
         sql = f"INSERT INTO identifier VALUES('{naver_identifier}', '{user_id}', 0);"
@@ -69,7 +77,7 @@ class NaverLogin(Resource):
         database.commit()
         database.close()
         
-        return naver_data, 200
+        return token, 200
 
 @oauth.route("/naver/leave")
 class NaverLoginLeave(Resource):
