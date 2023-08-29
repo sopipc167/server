@@ -140,7 +140,7 @@ class NotificationEditAPI(Resource):
         return {'message': '알림 정보를 삭제했어요 :)'}, 200
     
 @notification.route('/users')
-class NotificationMemberAPI(Resource):
+class NotificationUserListAPI(Resource):
     # 회원 목록 얻기
     def get(self):
         # DB에서 회원 목록 불러오기
