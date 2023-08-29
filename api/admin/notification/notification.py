@@ -145,7 +145,7 @@ class NotificationUserListAPI(Resource):
     def get(self):
         # DB에서 회원 목록 불러오기
         database = Database()
-        sql = "SELECT id, name, grade FROM users;"
+        sql = "SELECT * FROM users;"
         user_list = database.execute_all(sql)
         database.close()
         return user_list, 200
