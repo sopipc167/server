@@ -139,16 +139,16 @@ class NotificationEditAPI(Resource):
 
         return {'message': '알림 정보를 삭제했어요 :)'}, 200
     
-@notification.route('/members')
+@notification.route('/users')
 class NotificationMemberAPI(Resource):
     # 회원 목록 얻기
     def get(self):
         # DB에서 회원 목록 불러오기
         database = Database()
         sql = "SELECT id, name, grade FROM users;"
-        member_list = database.execute_all(sql)
+        user_list = database.execute_all(sql)
         database.close()
-        return member_list, 200
+        return user_list, 200
 
 @notification.route('/payment-period')
 class NotificationPaymentPeriodAPI(Resource):
