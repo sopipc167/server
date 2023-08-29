@@ -60,7 +60,7 @@ class NotificationByCategoryAPI(Resource):
         # Body 데이터 읽어오기
         notification = request.get_json()
         
-        # category, day를 문자열로 변환
+        # category, day를 index로 변환
         notification['category'] = convert_to_index(NOTIFICATION_CATEGORY, notification['category'])
         notification['member_category'] = convert_to_index(MEMBER_CATEGORY, notification['member_category'])
         notification['day'] = convert_to_index(DAY_CATEGORY, notification['day'])
@@ -84,7 +84,7 @@ class NotificationByCategoryAPI(Resource):
         database.commit()
         database.close()
 
-        return notification, 200
+        return {'message': '알림 정보를 추가했어요 :)'}, 200
 
 @notification.route('/modify/<int:notification_id>')
 class NotificationEditAPI(Resource):
