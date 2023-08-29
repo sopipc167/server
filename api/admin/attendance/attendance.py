@@ -105,3 +105,13 @@ class AttendanceEditAPI(Resource):
 
         return {'message': '출석 정보를 삭제했어요 :)'}, 200
  
+@attendance.route('/users')
+class AttendanceUserListAPI(Resource):
+    # 회원 목록 얻기
+    def get(self):
+        # DB에서 회원 목록 불러오기
+        database = Database()
+        sql = "SELECT * FROM users;"
+        user_list = database.execute_all(sql)
+        database.close()
+        return user_list, 200
