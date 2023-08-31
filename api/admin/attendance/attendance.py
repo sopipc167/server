@@ -8,6 +8,9 @@ attendance = Namespace('attendance')
 # 출석 category
 ATTENDANCE_CATEGORY = {0: '정기 회의', 1: '디자인 파트 회의', 2: '아트 파트 회의', 3: '프로그래밍 파트 회의', 4: '기타'}
 
+# 유저 출석 state
+USER_ATTENDANCE_STATE = {0: '출석', 1: '지각', 2: '불참'}
+
 # index 데이터를 문자열로 변경
 def convert_to_string(dictionary, index):
     return dictionary.get(index, None)
@@ -115,3 +118,75 @@ class AttendanceUserListAPI(Resource):
         user_list = database.execute_all(sql)
         database.close()
         return user_list, 200
+    
+@attendance.route('/user/<int:attendance_id>')
+class AttendanceUserAPI(Resource):
+    # 회원 출석 정보 얻기
+    def get(self, attendance_id):
+        # Body 데이터 읽어오기
+        user_id = request.get_json()['user_id']
+
+        # DB에서 회원 출석 정보 불러오기
+        database = Database()
+        sql = f"SELECT * FROM user_attendance WHERE attendance_id = {attendance_id} and user_id = '{user_id}';"
+        user_attendance = database.execute_one(sql)
+        database.close()
+
+        # 회원 출석 정보가 존재할 시 처리
+        if user_attendance:
+            # 회원 출석 state, 출석 인증 시간을 문자열로 변경
+            user_attendance['state'] = convert_to_string(USER_ATTENDANCE_STATE, user_attendance['state'])
+            user_attendance['first_auth_time'] = str(user_attendance['first_auth_time'])
+            user_attendance['second_auth_time'] = str(user_attendance['second_auth_time'])
+        
+        return user_attendance, 200
+
+    def post(self, attendance_id):
+        # Body 데이터 읽어오기
+        user_attendance = request.get_json()
+
+        # 회원 출석 state를 index로 변경
+        user_attendance['state'] = convert_to_index(USER_ATTENDANCE_STATE, user_attendance['state'])
+
+        # 회원 출석 정보를 DB에 추가
+        database = Database()
+        sql = "INSERT INTO user_attendance "\
+            f"VALUES({attendance_id}, '{user_attendance['user_id']}', "\
+            f"{user_attendance['state']}, '{user_attendance['first_auth_time']}', '{user_attendance['second_auth_time']}');"
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회원 출석 상태를 추가했어요 :)'}, 200
+        
+
+    def put(self, attendance_id):
+        # Body 데이터 읽어오기
+        user_attendance = request.get_json()
+
+        # 회원 출석 state를 index로 변경
+        user_attendance['state'] = convert_to_index(USER_ATTENDANCE_STATE, user_attendance['state'])
+
+        # 수정된 회원 출석 정보를 DB에 반영
+        database = Database()
+        sql = "UPDATE user_attendance SET "\
+            f"state = {user_attendance['state']}, first_auth_time = '{user_attendance['first_auth_time']}', second_auth_time = '{user_attendance['second_auth_time']}' "\
+            f"WHERE attendance_id = {attendance_id} and user_id = '{user_attendance['user_id']}';"
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회원 출석 상태를 수정했어요 :)'}, 200
+
+    def delete(self, attendance_id):
+        # Body 데이터 읽어오기
+        user_attendance = request.get_json()
+
+        # 회원 출석 정보를 DB에서 삭제
+        database = Database()
+        sql = f"DELETE FROM user_attendance WHERE attendance_id = {attendance_id} and user_id = '{user_attendance['user_id']}';"
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회원 출석 상태를 삭제했어요 :)'}, 200
