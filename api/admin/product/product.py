@@ -7,7 +7,8 @@ admin_product = Namespace('admin_product')
 
 def DateChangetoString(list, item):
     for idx, lst in enumerate(list):
-        list[idx][item] = lst[item].strftime('%Y-%m-%d')
+        if lst[item]:
+            list[idx][item] = lst[item].strftime('%Y-%m-%d')
 @admin_product.route("/all")
 class ProductList(Resource):
     def get(self):
@@ -15,11 +16,15 @@ class ProductList(Resource):
         #left join으로 대여중인 물품은 대여 정보까지 함께 가져오도록 함
         sql = f"SELECT * FROM products AS p LEFT JOIN rent_list AS r ON p.code = r.product_code;"
         product_list = database.execute_all(sql)
+        print(product_list)
         database.close()
 
         #json으로 전송하기 위해 python 클래스로 저장된 날짜 정보를 문자열로 변환
-        DateChangetoString(product_list,'deadline')
-        DateChangetoString(product_list, 'rent_day')
+        try:
+            DateChangetoString(product_list, 'deadline')
+            DateChangetoString(product_list, 'rent_day')
+        except (AttributeError, TypeError) as e:
+            print(f'에러가 발생했습니다:{e}')
 
 
         if not product_list:
