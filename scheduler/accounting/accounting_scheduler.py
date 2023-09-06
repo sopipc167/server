@@ -69,7 +69,6 @@ class AccountingScheduler(AbstractAccountingScheduler):
             value = tuple(self.sheet_data[sheet_idx])
             values.append(value)
 
-
         database.execute_many(sql, values)
 
         # 삭제된 데이터를 DELETE

@@ -1,11 +1,25 @@
 from abc import abstractmethod, ABCMeta
 import gspread # 5.10.0
 from datetime import datetime, date
+from google.oauth2.service_account import Credentials
+import configparser
+import json
+
+config = configparser.ConfigParser(interpolation=None)
+config.read_file(open('config/config.ini'))
+
+def convert_to_dict(config):
+    dictionary = {}
+    for key, value in config.items('google_sheet'):
+        if key != 'url':
+            dictionary[key] = value
+    dictionary['private_key'] = dictionary['private_key'].replace("\\n", "\n")
+    return dictionary
 
 class AbstractAccountingScheduler(metaclass=ABCMeta):
     # 구글 시트 연결 및 변수 선언
-    _client = gspread.service_account(filename= "scheduler/accounting/service_account.json")
-    _spreadsheet = _client.open_by_url("https://docs.google.com/spreadsheets/d/1Ck5pB9Wm-d0uHJzoSCNH8TxopH_CrjMIR-_1FMqZpwg/edit?usp=sharing")
+    _client = gspread.service_account_from_dict(convert_to_dict(config))
+    _spreadsheet = _client.open_by_url(config['google_sheet']['url'])
     _worksheet = None
     _sheet_data = None
     _db_data = None
@@ -51,11 +65,8 @@ class AbstractAccountingScheduler(metaclass=ABCMeta):
     
     # 데이터에서의 특정 값의 위치 반환
     def _find_index(self, data, value):
-        for i, row in enumerate(data):
-            for j, cell in enumerate(row):
-                if cell == value:
-                    return i, j
-        return None
+        index = [(i, j) for i, row in enumerate(data) for j, cell in enumerate(row) if cell == value]
+        return index[0] if index else None
         
     # 부분 테이블 반환
     def _get_sub_data(self, data, start_row, start_col, end_row, end_col):
