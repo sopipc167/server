@@ -27,7 +27,8 @@ class AttendanceInfoAPI(Resource):
     # category, date에 따른 출석 정보 얻기
     def get(self, category):
         # Body 데이터 읽어오기
-        date = request.get_json()['date']
+        date = request.args['date']
+        print(date)
 
         # DB에서 category, date값에 맞는 출석 정보 가져오기
         database = Database()
@@ -124,7 +125,7 @@ class AttendanceUserAPI(Resource):
     # 회원 출석 정보 얻기
     def get(self, attendance_id):
         # Body 데이터 읽어오기
-        user_id = request.get_json()['user_id']
+        user_id = request.args['user_id']
 
         # DB에서 회원 출석 정보 불러오기
         database = Database()
@@ -180,11 +181,11 @@ class AttendanceUserAPI(Resource):
 
     def delete(self, attendance_id):
         # Body 데이터 읽어오기
-        user_attendance = request.get_json()
+        user_id = request.args['user_id']
 
         # 회원 출석 정보를 DB에서 삭제
         database = Database()
-        sql = f"DELETE FROM user_attendance WHERE attendance_id = {attendance_id} and user_id = '{user_attendance['user_id']}';"
+        sql = f"DELETE FROM user_attendance WHERE attendance_id = {attendance_id} and user_id = '{user_id}';"
         database.execute(sql)
         database.commit()
         database.close()
