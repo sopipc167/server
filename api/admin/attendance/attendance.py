@@ -26,7 +26,7 @@ def convert_to_index(dictionary, string):
 class AttendanceInfoAPI(Resource):
     # category, date에 따른 출석 정보 얻기
     def get(self, category):
-        # Body 데이터 읽어오기
+        # Query Parameter 데이터 읽어오기
         date = request.args['date']
         print(date)
 
@@ -124,7 +124,7 @@ class AttendanceUserListAPI(Resource):
 class AttendanceUserAPI(Resource):
     # 회원 출석 정보 얻기
     def get(self, attendance_id):
-        # Body 데이터 읽어오기
+        # Query Parameter 데이터 읽어오기
         user_id = request.args['user_id']
 
         # DB에서 회원 출석 정보 불러오기
@@ -180,7 +180,7 @@ class AttendanceUserAPI(Resource):
         return {'message': '회원 출석 상태를 수정했어요 :)'}, 201
 
     def delete(self, attendance_id):
-        # Body 데이터 읽어오기
+        # Query Parameter 데이터 읽어오기
         user_id = request.args['user_id']
 
         # 회원 출석 정보를 DB에서 삭제
