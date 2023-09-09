@@ -67,7 +67,7 @@ class AttendanceInfoAPI(Resource):
         database.commit()
         database.close()
 
-        return {'message': '출석 정보를 추가했어요 :)'}, 200
+        return {'message': '출석 정보를 추가했어요 :)'}, 201
 
 @attendance.route("/modify/<int:attendance_id>")
 class AttendanceEditAPI(Resource):
@@ -90,7 +90,7 @@ class AttendanceEditAPI(Resource):
         database.commit()
         database.close()
 
-        return {'message': '출석 정보를 수정했어요 :)'}, 200
+        return {'message': '출석 정보를 수정했어요 :)'}, 201
 
     # 출석 정보 삭제
     def delete(self, attendance_id):
@@ -158,7 +158,7 @@ class AttendanceUserAPI(Resource):
         database.commit()
         database.close()
 
-        return {'message': '회원 출석 상태를 추가했어요 :)'}, 200
+        return {'message': '회원 출석 상태를 추가했어요 :)'}, 201
         
 
     def put(self, attendance_id):
@@ -177,7 +177,7 @@ class AttendanceUserAPI(Resource):
         database.commit()
         database.close()
 
-        return {'message': '회원 출석 상태를 수정했어요 :)'}, 200
+        return {'message': '회원 출석 상태를 수정했어요 :)'}, 201
 
     def delete(self, attendance_id):
         # Body 데이터 읽어오기
