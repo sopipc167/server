@@ -54,7 +54,7 @@ class AttendanceUserAPI(Resource):
         current_date = datetime.today().strftime('%Y-%m-%d')
         sql = "SELECT a.id as attendance_id, a.category, a.date, a.first_auth_start_time, a.first_auth_end_time, "\
             "a.second_auth_start_time, a.second_auth_end_time, ua.state, ua.first_auth_time, ua.second_auth_time "\
-            "FROM attendance a LEFT JOIN user_attendance ua ON a.id = ua.attendance_id "\
+            f"FROM attendance a LEFT JOIN user_attendance ua ON a.id = ua.attendance_id and ua.user_id = '{user_id}' "\
             f"WHERE a.date = '{current_date}' and a.category = '{user['part_index']}';"
         attendance_list = database.execute_all(sql)
 
@@ -77,5 +77,40 @@ class AttendanceUserAPI(Resource):
 
         return {'attendanc_list': attendance_list, 'record_list': record_list}, 200
     
+    # 회원의 출석 인증 정보 추가
     def post(self):
-        pass
+        # Body 데이터 읽어오기
+        user_attendance = request.get_json()
+
+        # 회원 출석 state를 index로 변경
+        user_attendance['state'] = convert_to_index(USER_ATTENDANCE_STATE, user_attendance['state'])
+
+        # 회원 출석 정보를 DB에 추가
+        database = Database()
+        sql = "INSERT INTO user_attendance "\
+            f"VALUES({user_attendance['attendance_id']}, '{user_attendance['user_id']}', "\
+            f"{user_attendance['state']}, '{user_attendance['first_auth_time']}', '{user_attendance['second_auth_time']}');"
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회원의 출석 인증 정보를 추가했어요 :)'}, 201
+    
+    # 회원의 출석 인증 정부 수정
+    def put(self):
+        # Body 데이터 읽어오기
+        user_attendance = request.get_json()
+
+        # 회원 출석 state를 index로 변경
+        user_attendance['state'] = convert_to_index(USER_ATTENDANCE_STATE, user_attendance['state'])
+
+        # 수정된 회원 출석 정보를 DB에 반영
+        database = Database()
+        sql = "UPDATE user_attendance SET "\
+            f"state = {user_attendance['state']}, first_auth_time = '{user_attendance['first_auth_time']}', second_auth_time = '{user_attendance['second_auth_time']}' "\
+            f"WHERE attendance_id = {user_attendance['attendance_id']} and user_id = '{user_attendance['user_id']}';"
+        database.execute(sql)
+        database.commit()
+        database.close()
+
+        return {'message': '회원의 출석 인증 정보를 수정했어요 :)'}, 201
