@@ -84,7 +84,7 @@ class NotificationByCategoryAPI(Resource):
         database.commit()
         database.close()
 
-        return {'message': '알림 정보를 추가했어요 :)'}, 200
+        return {'message': '알림 정보를 추가했어요 :)'}, 201
 
 @notification.route('/modify/<int:notification_id>')
 class NotificationEditAPI(Resource):
@@ -120,7 +120,7 @@ class NotificationEditAPI(Resource):
         database.commit()
         database.close()
 
-        return {'message': '알림 정보를 수정했어요 :)'}, 200
+        return {'message': '알림 정보를 수정했어요 :)'}, 201
 
     # 알림 정보 삭제
     def delete(self, notification_id):
