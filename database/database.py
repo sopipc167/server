@@ -2,7 +2,7 @@ import pymysql
 import configparser
 
 config = configparser.ConfigParser()
-config.read_file(open('config/config.ini'))
+config.read_file(open('../config/config.ini'))
 
 class Database:
     def __init__(self):
