@@ -1,11 +1,58 @@
 from flask import request
-from flask_restx import Resource, Namespace
+from flask_restx import Resource, Namespace, fields
 from database.database import Database
 
-feedback = Namespace('feedback')
+class feedbackDTO:
+    api= Namespace('feedback',description='임원진 물품관리')
+    feedback_response = api.model('feedback_response',{
+        'message': fields.String(description='응답결과')
+    })
+    feedback_response_all = api.inherit('feedback_response_all',feedback_response,{
+        'message':'성공적으로 모든 물품을 불러왔습니다.',
+        'code':fields.Integer(description='피드백을 구분하기 위한 식별자'),
+        'user_id':fields.String(description='피드백을 작성한 유저 식별자'),
+        'is_annoy':fields.Integer(description='익명인지아닌지를 판별하는 데이터베이스'),
+        'title':fields.String(description='피드백 글 제목'),
+        'content':fields.String(description='피드백 글 내용'),
+        'is_answered':fields.Integer(description='피드백 답변 여부')
+    })
+    feedback_response_search = api.inherit('feedback_response_search',feedback_response,{
+        'message': '성공적으로 검색된 물품을 불러왔습니다.',
+        'user_id': fields.String(description='피드백을 작성한 유저 식별자'),
+        'is_annoy': fields.Integer(description='익명인지아닌지를 판별하는 데이터베이스'),
+        'title': fields.String(description='피드백 글 제목'),
+        'content': fields.String(description='피드백 글 내용'),
+        'is_answered': fields.Integer(description='피드백 답변 여부')
+    })
+    not_qualified = api.inherit('not_qualified',feedback_response,{
+        'message':'피드백을 볼 수 없는 권한이 없어요.'
+    })
+    no_feedback_found = api.inherit('not_qualified', feedback_response,{
+        'message':'생성된 피드백이 하나도 없어요'
+    })
+    already_answered = api.inherit('already_answered',feedback_response,{
+        'message':'이미 답변된 피드백입니다.'
+    })
+    invalid_feedback = api.inherit('invalid_feedback',feedback_response,{
+        'message':'존재하지 않는 피드백입니다.'
+    })
+    no_title = api.inherit('no_title',feedback_response,{
+        'message':'제목을 입력해주세요'
+    })
+    no_contents = api.inherit('no_contents',feedback_response,{
+        'message':'내용을 입력해주세요'
+    })
+    post_sucess = api.inherit('post_sucess',feedback_response,{
+        'message':"피드백이 성공적으로 작성되었습니다"
+    })
 
-
+feedback = feedbackDTO.api
 @feedback.route("/<int:feedback_code>")
+@feedback.response(200, 'Success',feedbackDTO.feedback_response_search)
+@feedback.response(200, 'Post Success',feedbackDTO.post_sucess)
+@feedback.response(400,'Invaild Feedback',feedbackDTO.invalid_feedback)
+@feedback.response(400,'No Title',feedbackDTO.no_title)
+@feedback.response(400,'No contents',feedbackDTO.no_contents)
 class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
     def get(self, feedback_code):
         # Body 데이터 얻어오기 (user_id)
@@ -15,12 +62,12 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         # 데이터베이스에서 feedback 목록을 불러옴
         database = Database()
         sql = f"SELECT * FROM feedback WHERE feedback_code = {feedback_code};"
-        feedbvack = database.execute_all(sql)
+        feedback = database.execute_all(sql)
 
         # feedback이 하나도 없을 때의 처리
         if not feedback:
             database.close()
-            return {"message":"아직 피드백이 없어요."}, 200
+            return {"message":"존재하지 않는 피드백입니다"}, 400
         else:
             if feedback['is_anony'] == 1:  # 익명 처리
                 feedback['user_id'] = 0
@@ -57,6 +104,8 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
 
 
 @feedback.route("/list")
+@feedback.response(200, 'Success',feedbackDTO.feedback_response_all)
+@feedback.response(200,'No feedback found',feedbackDTO.no_feedback_found)
 class FeedbackListGetAPI(Resource):
     def get(self):
         body_data = request.get_json()
@@ -80,6 +129,11 @@ class FeedbackListGetAPI(Resource):
                 return feedback_list, 200
 
 @feedback.route("/answer/<int:feedback_code>")
+@feedback.response(200, 'Post Success',feedbackDTO.post_sucess)
+@feedback.response(401,'Access Denied',feedbackDTO.not_qualified)
+@feedback.response(400,'Invaild Feedback',feedbackDTO.invalid_feedback)
+@feedback.response(400,'No contents',feedbackDTO.no_contents)
+@feedback.response(400,'already answered',feedbackDTO.already_answered)
 class FeedbackAnswerAPI(Resource):
     def post(self, feedback_code):
 
