@@ -1,5 +1,6 @@
 from pyfcm import FCMNotification
 from database.database import Database
+from FCM import NotificationManager
 import schedule
 import datetime
 import time
@@ -20,9 +21,14 @@ class Notification: #알림 객체
         self.timeParser(data)
     def __del__(self):
         print(f'{self.cycle} {self.time}시에 예약된 알람을 삭제했습니다.')
-
+        NotificationManager.delete_notification(self)
+    def check_expired(self):
+        if datetime.datetime.now() <= self.expire_day:
+            return True
+        else:
+            return False
     async def sendMessage(self,body, title):
-        if datetime.datetime.now()<self.expire_day: #만약 날짜가 만료되면 자동으로 스케쥴 취소
+        if self.check_expired():#만약 날짜가 만료되면 자동으로 스케쥴 취소
             self.__del__()
             return schedule.CancelJob
         # 메시지 (data 타입)
@@ -54,4 +60,3 @@ class Notification: #알림 객체
 
 
 
-    
