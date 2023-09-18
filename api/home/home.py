@@ -11,6 +11,7 @@ home = Namespace('home')
 @home.response(401, 'Unauthorized')
 class HomeAttendanceAPI(Resource):
     # 예정된 회의 정보 얻기
+    @home.doc(security='apiKey')
     @jwt_required()
     def get(self):
         database = Database()
@@ -38,6 +39,7 @@ class HomeAttendanceAPI(Resource):
 @home.response(401, 'Unauthorized')
 class HomeScheduleAPI(Resource):
     # 예정된 일정 목록 얻기
+    @home.doc(security='apiKey')
     @jwt_required()
     def get(self):
         database = Database()
@@ -66,6 +68,7 @@ class HomeScheduleAPI(Resource):
 @home.response(401, 'Unauthorized')
 class HomeProductAPI(Resource):
     # DB에서 user_id에 따른 물품 대여 목록 얻기
+    @home.doc(security='apiKey')
     @jwt_required()
     def get(self):
         database = Database()
