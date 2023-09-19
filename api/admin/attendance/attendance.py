@@ -25,12 +25,12 @@ def convert_to_index(dictionary, string):
             return key
     return None
 
+@attendance.route("/category/<int:category>")
 class AttendanceInfoAPI(Resource):
     # category, date에 따른 출석 정보 얻기
     @attendance.expect(AdminAttendanceDTO.query_date, validate=True)
     @attendance.response(200, 'OK', AdminAttendanceDTO.response_attendance_with_code)
     @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message_with_code)
-    @attendance.route("/category/<int:category>")
     def get(self, category):
         # Query Parameter 데이터 읽어오기
         date = request.args['date']
@@ -108,11 +108,13 @@ class AttendanceUserListAPI(Resource):
         if not user_list: # 회원이 존재하지 않을 경우 처리
             return {}, 200
         else:
-            # 회원의 소속 파트 index를 문자열로 변환
+            # index 및 time을 문자열로 변환
             for idx, user in enumerate(user_list):
                 user_list[idx]['part_index'] = convert_to_string(ATTENDANCE_CATEGORY, user['part_index'])
                 user_list[idx]['rest_type'] = convert_to_string(USER_REST_TYPE, user['rest_type'])
                 user_list[idx]['state'] = convert_to_string(USER_ATTENDANCE_STATE, user['state'])
+                user_list[idx]['first_auth_time'] = str(user['first_auth_time'])
+                user_list[idx]['second_auth_time'] = str(user['second_auth_time'])
         return user_list, 200
     
 @attendance.route('/user/<int:attendance_id>')
