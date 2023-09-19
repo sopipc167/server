@@ -100,7 +100,6 @@ class AdminAttendanceDTO:
     model_attendance = api.model('model_attendance', {
         'id': fields.Integer(description='ID'),
         'date': fields.Date(description='출석 날짜'),
-        'category': fields.String(description='회의 종류'),
         'first_auth_start_time': nullable(fields.String)(description='1차 인증 시작 시간'),
         'first_auth_end_time': nullable(fields.String)(description='1차 인증 종료 시간'),
         'second_auth_start_time': nullable(fields.String)(description='2차 인증 시작 시간'),

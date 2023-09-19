@@ -120,7 +120,7 @@ class AttendanceUserListAPI(Resource):
 @attendance.route('/user/<int:attendance_id>')
 class AttendanceUserAPI(Resource):
     # 회원 출석 정보 얻기
-    @attendance.expect(AdminAttendanceDTO.query_attendance_id, validate=True)
+    @attendance.expect(AdminAttendanceDTO.query_user_id, validate=True)
     @attendance.response(200, 'OK', AdminAttendanceDTO.response_user_attendance_with_code)
     @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message_with_code)
     def get(self, attendance_id):
@@ -132,6 +132,7 @@ class AttendanceUserAPI(Resource):
             # DB에서 회원 출석 정보 불러오기
             database = Database()
             sql = f"SELECT * FROM user_attendance WHERE attendance_id = {attendance_id} and user_id = '{user_id}';"
+            print(sql)
             user_attendance = database.execute_one(sql)
         except:
             return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
