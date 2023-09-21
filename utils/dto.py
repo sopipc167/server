@@ -181,3 +181,6 @@ class WarningDTO:
     warning_response_message = api.model('warning_reponse_message', {
         'message': fields.String(description='결과 메시지', example="경고 정보를 수정했어요 :)")
     })
+    
+class AccountingDTO:
+    api = Namespace('accounting', description='회원 회비 납부 내역')

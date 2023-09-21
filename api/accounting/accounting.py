@@ -2,8 +2,9 @@ from flask import Flask, request
 from flask_restx import Resource, Namespace
 from database.database import Database
 from datetime import datetime, date
+from utils.dto import AccountingDTO
 
-accounting = Namespace('accounting')
+accounting = AccountingDTO.api
 
 # 회비 category
 MEMBERSHIP_FEE_CATEGORY = {1: '납부 완료', 2: '납부 완료', 3: '납부 지연', 4: '미납'}
