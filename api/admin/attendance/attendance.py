@@ -42,7 +42,7 @@ class AttendanceInfoAPI(Resource):
             sql = f"SELECT * FROM attendance WHERE category = {category} and date = '{date}';"
             attendance = database.execute_one(sql)
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -77,7 +77,7 @@ class AttendanceInfoAPI(Resource):
             database.execute(sql)
             database.commit()
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -101,12 +101,12 @@ class AttendanceUserListAPI(Resource):
                 f"ON u.id = ua.user_id WHERE ua.attendance_id = {attendance_id};"
             user_list = database.execute_all(sql)
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
         if not user_list: # 회원이 존재하지 않을 경우 처리
-            return {}, 200
+            return [], 200
         else:
             # index 및 time을 문자열로 변환
             for idx, user in enumerate(user_list):
@@ -135,7 +135,7 @@ class AttendanceUserAPI(Resource):
             print(sql)
             user_attendance = database.execute_one(sql)
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -169,7 +169,7 @@ class AttendanceUserAPI(Resource):
             database.execute(sql, value)
             database.commit()
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
