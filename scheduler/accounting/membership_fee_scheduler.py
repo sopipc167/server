@@ -1,9 +1,9 @@
 
 from database.database import Database
 from datetime import datetime, date
-from scheduler.accounting.abstract_accounting_scheduler import AbstractAccountingScheduler
+from scheduler.accounting.accounting_scheduler import AccountingScheduler
 
-class MembershipFeeScheduler(AbstractAccountingScheduler):
+class MembershipFeeScheduler(AccountingScheduler):
     # 월별 회비 확인표 스케줄러
     def __init__(self):
         self._worksheet = self._spreadsheet.get_worksheet(2)

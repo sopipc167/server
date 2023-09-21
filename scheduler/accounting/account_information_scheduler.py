@@ -1,7 +1,7 @@
 from database.database import Database
-from scheduler.accounting.abstract_accounting_scheduler import AbstractAccountingScheduler
+from scheduler.accounting.accounting_scheduler import AccountingScheduler
 
-class AccountInformationScheduler(AbstractAccountingScheduler):
+class AccountInformationScheduler(AccountingScheduler):
 
     # 계좌 정보 스케줄러
     def __init__(self):
