@@ -215,7 +215,7 @@ class NotificationPaymentPeriodAPI(Resource):
             database.close()
 
         if not payment_period_list: # 납부 기간이 없을 때 처리
-            return {}, 200
+            return [], 200
         else:
             # 납부 기간 내역의 날짜 데이터들을 문자열로 변경
             for idx, payment_period in enumerate(payment_period_list):
