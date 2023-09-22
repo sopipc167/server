@@ -132,28 +132,12 @@ class AdminAttendanceDTO:
         'second_auth_end_time': fields.String(description='2차 인증 종료 시간')
     })
 
-    response_attendance_with_code = api.inherit('response_attendance_with_code', model_attendance, {
-        'code': fields.Integer(description='상태 코드', example=200)
-    })
-
     response_user_list = api.model('model_user_list', {
         'user_list': fields.List(fields.Nested(model_user), description='회원 목록')
     })
 
-    response_user_list_with_code = api.inherit('response_user_list_with_code', response_user_list, {
-        'code': fields.Integer(description='상태 코드', example=200)
-    })
-    
     response_message = api.model('response_message', {
         'message': fields.String(description='결과 메시지')
-    })
-
-    response_message_with_code = api.inherit('response_message', response_message, {
-        'code': fields.Integer(description='상태 코드', example=200)
-    })
-
-    response_user_attendance_with_code = api.inherit('response_user_attendance_with_code', model_user_attendance, {
-        'code': fields.Integer(description='상태 코드', example=200)
     })
 
     query_date = api.parser().add_argument(

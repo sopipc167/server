@@ -29,8 +29,8 @@ def convert_to_index(dictionary, string):
 class AttendanceInfoAPI(Resource):
     # category, date에 따른 출석 정보 얻기
     @attendance.expect(AdminAttendanceDTO.query_date, validate=True)
-    @attendance.response(200, 'OK', AdminAttendanceDTO.response_attendance_with_code)
-    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message_with_code)
+    @attendance.response(200, 'OK', AdminAttendanceDTO.response_attendance)
+    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
     def get(self, category):
         # Query Parameter 데이터 읽어오기
         date = request.args['date']
@@ -59,8 +59,8 @@ class AttendanceInfoAPI(Resource):
     
     # 출석 정보 수정
     @attendance.expect(AdminAttendanceDTO.model_attendance, validate=True)
-    @attendance.response(200, 'OK', AdminAttendanceDTO.response_message_with_code)
-    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message_with_code)
+    @attendance.response(200, 'OK', AdminAttendanceDTO.response_message)
+    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
     def put(self, category):
         # Body 데이터 읽어오기
         attendance = request.get_json()
@@ -87,8 +87,8 @@ class AttendanceInfoAPI(Resource):
 class AttendanceUserListAPI(Resource):
     # 회원 목록 얻기
     @attendance.expect(AdminAttendanceDTO.query_attendance_id, validate=True)
-    @attendance.response(200, 'OK', AdminAttendanceDTO.response_user_list_with_code)
-    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message_with_code)
+    @attendance.response(200, 'OK', AdminAttendanceDTO.response_user_list)
+    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
     def get(self):
         # Query Parameter 데이터 읽어오기
         attendance_id = request.args['attendance_id']
@@ -121,8 +121,8 @@ class AttendanceUserListAPI(Resource):
 class AttendanceUserAPI(Resource):
     # 회원 출석 정보 얻기
     @attendance.expect(AdminAttendanceDTO.query_user_id, validate=True)
-    @attendance.response(200, 'OK', AdminAttendanceDTO.response_user_attendance_with_code)
-    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message_with_code)
+    @attendance.response(200, 'OK', AdminAttendanceDTO.model_user_attendance)
+    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
     def get(self, attendance_id):
         # Query Parameter 데이터 읽어오기
         user_id = request.args['user_id']
@@ -149,8 +149,8 @@ class AttendanceUserAPI(Resource):
         return user_attendance, 200
 
     @attendance.expect(AdminAttendanceDTO.model_user_attendance, validate=True)
-    @attendance.response(200, 'OK', AdminAttendanceDTO.response_message_with_code)
-    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message_with_code)
+    @attendance.response(200, 'OK', AdminAttendanceDTO.response_message)
+    @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
     def put(self, attendance_id):
         # Body 데이터 읽어오기
         user_attendance = request.get_json()
