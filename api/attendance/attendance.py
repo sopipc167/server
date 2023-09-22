@@ -27,8 +27,8 @@ def convert_to_index(dictionary, string):
 class AttendanceUserAPI(Resource):
     # user_id에 따른 출석 정보 얻기
     @attendance.expect(AttendanceDTO.query_user_id, validate=True)
-    @attendance.response(200, 'OK', AttendanceDTO.response_data_with_code)
-    @attendance.response(400, 'Bad Request', AttendanceDTO.response_message_with_code)
+    @attendance.response(200, 'OK', AttendanceDTO.response_data)
+    @attendance.response(400, 'Bad Request', AttendanceDTO.response_message)
     def get(self, attendance_id):
         # 추후 토큰으로 대신할 예정
         user_id = request.args['user_id']
@@ -52,7 +52,7 @@ class AttendanceUserAPI(Resource):
                 f"WHERE ua.user_id = '{user_id}' and a.category = {attendance['category']} ORDER BY a.date DESC LIMIT 4;"
             record_list = database.execute_all(sql)
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -77,8 +77,8 @@ class AttendanceUserAPI(Resource):
     
     # 회원의 출석 인증 정보 수정
     @attendance.expect(AttendanceDTO.model_user_attendance, validate=True)
-    @attendance.response(200, 'OK', AttendanceDTO.response_message_with_code)
-    @attendance.response(400, 'Bad Request', AttendanceDTO.response_message_with_code)
+    @attendance.response(200, 'OK', AttendanceDTO.response_message)
+    @attendance.response(400, 'Bad Request', AttendanceDTO.response_message)
     def put(self, attendance_id):
         # Body 데이터 읽어오기
         user_attendance = request.get_json()
@@ -100,7 +100,7 @@ class AttendanceUserAPI(Resource):
             database.execute(sql, value)
             database.commit()
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
