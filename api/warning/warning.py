@@ -7,14 +7,14 @@ warning = Namespace('warning')
 # category(경고 종류)
 WARNING_CATEGORY = {-2: '경고 차감', -1: '주의 차감', 1: '주의 부여', 2: '경고 부여', 0: '경고 초기화'}
 
-# category를 문자열로 변환
-def wc_int_to_str(category):
-    return WARNING_CATEGORY.get(category, None)
+# index 데이터를 문자열로 변경
+def convert_to_string(dictionary, index):
+    return dictionary.get(index, None)
 
-# category를 index로 변환
-def wc_str_to_int(category):
-    for key, value in WARNING_CATEGORY.items():
-        if value == category:
+# 문자열 데이터를 index로 변경
+def convert_to_index(dictionary, string):
+    for key, value in dictionary.items():
+        if value == string:
             return key
     return None
 
@@ -34,7 +34,7 @@ class WarningStatusUserAPI(Resource):
             for idx, warning in enumerate(warning_list):
                 # date 및 category를 문자열로 변환
                 warning_list[idx]['date'] = warning['date'].strftime('%Y-%m-%d')
-                warning_list[idx]['category'] = wc_int_to_str(warning['category'])
+                warning_list[idx]['category'] = convert_to_string(WARNING_CATEGORY, warning['category'])
             return warning_list, 200
     
     # 회원에 대한 경고 추가
@@ -44,7 +44,7 @@ class WarningStatusUserAPI(Resource):
 
         # user_id 설정, category를 index로 변환
         warning['user_id'] = user_id
-        warning['category'] = wc_str_to_int(warning['category'])
+        warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
 
         # 경고 현황을 DB에 추가
         database = Database()
@@ -66,7 +66,7 @@ class WarningStatusEditAPI(Resource):
 
         # id 설정, category를 index로 변환
         warning['id'] = warning_id
-        warning['category'] = wc_str_to_int(warning['category'])
+        warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
 
         # 수정된 사항을 DB에 반영
         database = Database()
