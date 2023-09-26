@@ -1,8 +1,9 @@
 from flask import Flask, request
 from flask_restx import Resource, Namespace
 from database.database import Database
+from utils.dto import WarningDTO
 
-warning = Namespace('warning')
+warning = WarningDTO.api
 
 # category(경고 종류)
 WARNING_CATEGORY = {-2: '경고 차감', -1: '주의 차감', 1: '주의 부여', 2: '경고 부여', 0: '경고 초기화'}
@@ -18,10 +19,15 @@ def convert_to_index(dictionary, string):
             return key
     return None
 
-@warning.route('/<int:user_id>')
+@warning.route('')
 class WarningStatusUserAPI(Resource):
     # 회원의 경고 목록 얻기
-    def get(self, user_id):
+    @warning.expect(WarningDTO.query_user_id)
+    @warning.response(200, 'OK', WarningDTO.model_warning_list)
+    def get(self):
+        # 추후 토큰으로 대신할 예정
+        user_id = request.args['user_id']
+
         # DB에서 user_id값에 맞는 경고 목록 불러오기
         database = Database()
         sql = f"SELECT * FROM warnings WHERE user_id = {user_id};"
@@ -38,18 +44,23 @@ class WarningStatusUserAPI(Resource):
             return warning_list, 200
     
     # 회원에 대한 경고 추가
+    @warning.expect(WarningDTO.query_user_id)
+    @warning.expect(WarningDTO.model_warning)
+    @warning.response(200, 'OK', WarningDTO.response_message)
     def post(self, user_id):
+        # 추후 토큰으로 대신할 예정
+        user_id = request.args['user_id']
+
         # Body 데이터 읽어오기
         warning = request.get_json()
 
         # user_id 설정, category를 index로 변환
-        warning['user_id'] = user_id
         warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
 
         # 경고 현황을 DB에 추가
         database = Database()
         sql = f"INSERT INTO warnings "\
-            f"VALUES({warning['id']}, {warning['user_id']}, {warning['category']}, "\
+            f"VALUES(NULL, {user_id}, {warning['category']}, "\
             f"'{warning['message']}', '{warning['date']}', '{warning['etc_message']}');"
         database.execute(sql)
         database.commit()
@@ -57,23 +68,26 @@ class WarningStatusUserAPI(Resource):
 
         return warning, 200
 
-@warning.route('/<int:warning_id>/modify')
-class WarningStatusEditAPI(Resource):
     # 경고 현황 수정
-    def put(self, warning_id):
+    @warning.expect(WarningDTO.query_user_id)
+    @warning.expect(WarningDTO.model_warning_with_id)
+    @warning.response(200, 'OK', WarningDTO.response_message)
+    def put(self):
+        # 추후 토큰으로 대신할 예정
+        user_id = request.args['user_id']
+
         # Body 데이터 받아오기
         warning = request.get_json()
 
-        # id 설정, category를 index로 변환
-        warning['id'] = warning_id
+        # category를 index로 변환
         warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
 
         # 수정된 사항을 DB에 반영
         database = Database()
         sql = f"UPDATE warnings SET "\
-        f"id = {warning['id']}, user_id = {warning['user_id']}, category = {warning['category']}, "\
+        f"id = {warning['id']}, user_id = {user_id}, category = {warning['category']}, "\
         f"message = '{warning['message']}', date = '{warning['date']}', etc_message = '{warning['etc_message']}' "\
-        f"WHERE id = {warning_id};"
+        f"WHERE id = {warning['id']};"
         database.execute(sql)
         database.commit()
         database.close()
@@ -81,7 +95,11 @@ class WarningStatusEditAPI(Resource):
         return {'message': '경고 정보를 수정했어요 :)'}, 200
 
     # 경고 현황 삭제
-    def delete(self, warning_id):
+    @warning.expect(WarningDTO.query_warning_id)
+    @warning.response(200, 'OK', WarningDTO.response_message)
+    def delete(self):
+        warning_id = request.args['id']
+
         # 경고 현황을 DB에서 삭제
         database = Database()
         sql = f"DELETE FROM warnings WHERE id = {warning_id};"

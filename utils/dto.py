@@ -143,11 +143,43 @@ class AdminAttendanceDTO:
     query_date = api.parser().add_argument(
         'date', type=str, help='출석 일자'
     )
+    
+    query_user_id = api.parser().add_argument(
+        'user_id', type=str, help='유저 ID'
+    )
+    
+    query_attendance_id = api.parser().add_argument(
+        'attendance_id', type=int, help='출석 ID'
+    )
+
+class WarningDTO:
+    api = Namespace('warning', description='회원 경고 기능')
+
+    model_warning = api.model('model_warning', {
+        'id': fields.String(description='경고 ID'),
+        'user_id': fields.String(description='유저 ID'),
+        'category': fields.String(description='회의 종류', enum=['경고 차감', '주의 차감', '주의 부여', '경고 부여', '경고 초기화']),
+        'date': fields.String(description='날짜'),
+        'description': fields.String(description='사유'),
+        'comment': nullable(fields.String)(description='비고')
+    })
+
+    model_warning_with_id = api.inherit('model_warning_with_id', {
+        'id': fields.String(description='경고 ID')
+    }, model_warning)
+
+    model_warning_list = api.model('model_warning_list', {
+        'warning_list': fields.List(fields.Nested(model_warning_with_id), description='경고 목록')
+    })
 
     query_user_id = api.parser().add_argument(
         'user_id', type=str, help='유저 ID'
     )
 
-    query_attendance_id = api.parser().add_argument(
-        'attendance_id', type=int, help='출석 ID'
+    query_warning_id = api.parser().add_argument(
+        'id', type=str, help='경고 ID'
     )
+
+    response_message = api.model('response_message', {
+        'message': fields.String(description='결과 메시지', example="회원의 출석 인증 정보를 수정했어요 :)")
+    })
