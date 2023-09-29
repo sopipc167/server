@@ -44,7 +44,7 @@ class NotificationByCategoryAPI(Resource):
 
         if not notification_list: # 알림이 없을 때 처리
             database.close()
-            return [], 200
+            return {'notification_list': []}, 200
         else:
             for idx, notification in enumerate(notification_list):
                 # time, date, category, day를 문자열로 변경
@@ -60,7 +60,7 @@ class NotificationByCategoryAPI(Resource):
                 notification_list[idx]['member_list'] = [member['user_id'] for member in member_list]
             
             database.close()
-            return notification_list, 200
+            return {'notification_list': notification_list}, 200
     
     # 알림 정보 추가
     @notification.expect(AdminNotificationDTO.model_notification, validate=True)
@@ -188,7 +188,7 @@ class NotificationUserListAPI(Resource):
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
-        return user_list, 200
+        return {'user_list': user_list}, 200
 
 @notification.route('/payment-period')
 class NotificationPaymentPeriodAPI(Resource):
@@ -215,7 +215,7 @@ class NotificationPaymentPeriodAPI(Resource):
             database.close()
 
         if not payment_period_list: # 납부 기간이 없을 때 처리
-            return [], 200
+            return {'payment_period_list': []}, 200
         else:
             # 납부 기간 내역의 날짜 데이터들을 문자열로 변경
             for idx, payment_period in enumerate(payment_period_list):
@@ -223,4 +223,4 @@ class NotificationPaymentPeriodAPI(Resource):
                 payment_period_list[idx]['start_date'] = payment_period['start_date'].strftime('%Y-%m-%d')
                 payment_period_list[idx]['end_date'] = payment_period['end_date'].strftime('%Y-%m-%d')
             
-            return payment_period_list, 200
+            return {'payment_period_list': payment_period_list}, 200
