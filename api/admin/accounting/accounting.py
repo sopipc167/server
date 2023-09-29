@@ -96,7 +96,7 @@ class MembershipFeeCheckAPI(Resource):
             monthly_payment_list.append(monthly_payment)
 
         if not monthly_payment_list: # 월별 회비 납부 내역이 없을 때의 처리
-            return {}, 200
+            return {'monthly_payment_list': []}, 200
         else:
             return {'monthly_payment_list': monthly_payment_list}, 200
 
@@ -126,7 +126,7 @@ class MembershipFeePeriodAPI(Resource):
             database.close()
 
         if not payment_period_list: # 납부 기간이 없을 때 처리
-            return {}, 200
+            return {'payment_period_list': []}, 200
         else:
             # 납부 기간 내역의 날짜 데이터들을 문자열로 변경
             for idx, payment_period in enumerate(payment_period_list):
