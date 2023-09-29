@@ -184,3 +184,43 @@ class WarningDTO:
     
 class AccountingDTO:
     api = Namespace('accounting', description='회원 회비 납부 내역')
+
+    model_monthly_payment = api.model('model_monthly_payment', {
+        'date': fields.String(description='납부 년/월 (YYYY-MM-01 형식)', example='2023-09-01'),
+        'amount': fields.Integer(description='납부 금액', example=5000),
+        'category': fields.String(description='납부 상태', example='납부 완료')
+    })
+
+    model_payment_period = api.model('model_payment_period', {
+        'start_date': fields.String(description='금월 납부 기간 시작일', example='2023-09-20'),
+        'end_date': fields.String(description='금월 납부 기간 마감일', example='2023-09-28')
+    })
+
+    model_payment_info = api.model('model_payment_info', {
+        'monthly_payment_list': fields.List(fields.Nested(model_monthly_payment)),
+        'payment_period': nullable(fields.Nested)(model_payment_period),
+        'payment_amount': fields.Integer(description='금월 납부 금액', example=5000),
+        'total_amount': fields.Integer(description='동아리 계좌 총 금액', example=900000)
+    })
+
+    model_accounting = api.model('mode_accounting', {
+        'id': fields.Integer(description='계좌 내역 ID', example=1),
+        'date': fields.String(description='입/출금 날짜', example='2023-09-01'),
+        'amount': fields.Integer(description='입/출금 금액', example=20000),
+        'description': (nullable)(fields.String)(description='설명', example='아트 파트 책 구매'),
+        'category': fields.String(description='내역 유형', example='비품비'),
+        'pament_method': fields.String(description='입/출금 방식', enum=['통장', '금고'])
+    })
+
+    model_accounting_info = api.model('model_accounting_info', {
+        'accounting_list': fields.List(fields.Nested(model_accounting)),
+        'total_amount': fields.Integer(description='동아리 계좌 총 금액', example=900000)
+    })
+
+    accounting_response_message = api.model('accounting_response_message', {
+        'message': fields.String(description='결과 메시지', example="데이터베이스 오류가 발생했어요 :(")
+    })
+
+    query_user_id = api.parser().add_argument(
+        'user_id', type=str, help='유저 ID'
+    )

@@ -9,9 +9,6 @@ accounting = AccountingDTO.api
 # 회비 category
 MEMBERSHIP_FEE_CATEGORY = {1: '납부 완료', 2: '납부 완료', 3: '납부 지연', 4: '미납'}
 
-# 회계 내역 category(내역 유형)
-ACCOUNTING_CATEGORY = {0: '문의 불가', 1: '문의 가능'}
-
 # payment_method(결제 수단)
 PAYMENT_METHOD = {0: '통장', 1: '금고'}
 
@@ -26,37 +23,45 @@ def convert_to_index(dictionary, string):
             return key
     return None
 
-@accounting.route('/<user_id>')
+@accounting.route('')
 class AccountingUserAPI(Resource):
     # 회원의 월별 회비 납부 내역 얻기
-    def get(self, user_id):
+    @accounting.expect(AccountingDTO.query_user_id, validate=True)
+    @accounting.response(200, 'OK', AccountingDTO.model_payment_info)
+    @accounting.response(400, 'Bad Request', AccountingDTO.accounting_response_message)
+    def get(self):
+        # 추후 토큰으로 대체 예정
+        user_id = request.args['user_id']
+
         # 금월 및 작년 6월 날짜 구한 뒤 문자열로 변환 ('YYYY-MM-01' 형식)
         current_month = date(datetime.today().year, datetime.today().month, 1)
         start_month = date(current_month.year - 1, 6, 1)
         current_month.strftime('%Y-%m-%d')
         start_month.strftime('%Y-%m-%d')
 
-        print(current_month, start_month)
+        # DB 예외처리
+        try:
+            database = Database()
 
-        database = Database()
+            # DB에서 user_id값에 맞는 월별 회비 납부 내역 불러오기 (작년 6월부터 현재 달까지)
+            sql = f"SELECT date, amount, category FROM membership_fees "\
+                f"WHERE user_id = '{user_id}' "\
+                f"and date between '{start_month}' and '{current_month}' "\
+                f"ORDER BY date;"
+            monthly_payment_list = database.execute_all(sql)
 
-        # DB에서 user_id값에 맞는 월별 회비 납부 내역 불러오기 (작년 6월부터 현재 달까지)
-        sql = f"SELECT date, amount, category FROM membership_fees "\
-            f"WHERE user_id = '{user_id}' "\
-            f"and date between '{start_month}' and '{current_month}' "\
-            f"ORDER BY date;"
-        monthly_payment_list = database.execute_all(sql)
-
-        # 금월 회비 납부 기간 불러오기
-        sql = f"SELECT start_date, end_date FROM monthly_payment_periods "\
-            f"WHERE date = '{current_month}';"
-        payment_period = database.execute_one(sql)
-        
-        # 계좌 내의 총 금액 불러오기
-        sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
-        total_amount = int(database.execute_one(sql)['value'])
-
-        database.close()
+            # 금월 회비 납부 기간 불러오기
+            sql = f"SELECT start_date, end_date FROM monthly_payment_periods "\
+                f"WHERE date = '{current_month}';"
+            payment_period = database.execute_one(sql)
+            
+            # 계좌 내의 총 금액 불러오기
+            sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
+            total_amount = int(database.execute_one(sql)['value'])
+        except:
+            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+        finally:
+            database.close()
 
         # 금월 회비 납부 금액 얻기
         payment_amount = None
@@ -83,18 +88,23 @@ class AccountingUserAPI(Resource):
 @accounting.route('/list')
 class AccountingListAPI(Resource):
     # 회비 내역 목록 얻기
+    @accounting.response(200, 'OK', AccountingDTO.model_accounting_info)
+    @accounting.response(400, 'Bad Request', AccountingDTO.accounting_response_message)
     def get(self):
-        database = Database()
+        # DB 예외처리
+        try:
+            database = Database()
+            # DB에서 전체 회비 내역 목록 불러오기
+            sql = "SELECT * FROM accountings;"
+            accounting_list = database.execute_all(sql)
 
-        # DB에서 전체 회비 내역 목록 불러오기
-        sql = "SELECT * FROM accountings;"
-        accounting_list = database.execute_all(sql)
-
-        # 계좌 내의 총 금액 불러오기
-        sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
-        total_amount = int(database.execute_one(sql)['value'])
-
-        database.close()
+            # 계좌 내의 총 금액 불러오기
+            sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
+            total_amount = int(database.execute_one(sql)['value'])
+        except:
+            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+        finally:
+            database.close()
 
         result_data = {'accounting_list': accounting_list, 'total_amount': total_amount}
 
@@ -102,8 +112,7 @@ class AccountingListAPI(Resource):
             return result_data, 200
         else:
             for idx, accounting in enumerate(accounting_list):
-                # date 및 category, payment_method를 문자열로 변환
+                # date, payment_method를 문자열로 변환
                 accounting_list[idx]['date'] = accounting['date'].strftime('%Y-%m-%d')
-                accounting_list[idx]['category'] = convert_to_string(ACCOUNTING_CATEGORY, accounting['category'])
                 accounting_list[idx]['payment_method'] = convert_to_string(PAYMENT_METHOD, accounting['payment_method'])
             return result_data, 200
