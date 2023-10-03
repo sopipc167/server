@@ -38,16 +38,8 @@ class AttendanceDTO:
         'record_list': fields.List(fields.Nested(model_record), description='최근 4건의 출석 여부')
     })
 
-    response_data_with_code = api.inherit('response_data_with_code', response_data, {
-        'code': fields.Integer(description='상태 코드', example=200)
-    })
-
     response_message = api.model('response_message', {
-        'message': fields.String(description='결과 메시지', example="회원의 출석 인증 정보를 수정했어요 :)")
-    })
-
-    response_message_with_code = api.inherit('response_message', response_message, {
-        'code': fields.Integer(description='상태 코드', example=200)
+        'message': fields.String(description='결과 메시지')
     })
 
     query_user_id = api.parser().add_argument(
