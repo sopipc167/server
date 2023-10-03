@@ -53,3 +53,52 @@ class AttendanceDTO:
     query_user_id = api.parser().add_argument(
         'user_id', type=str, help='유저 ID'
     )
+
+class AdminNotificationDTO:
+    api = Namespace('notification', description='임원진 알림 관리')
+
+    model_notification = api.model('model_notification', {
+        'id': fields.Integer(description='알림 ID (POST 시에는 유효하지 않습니다.)'),
+        'member_category': fields.String(description="알림 대상자 종류", enum=['활동 중인 회원 전체', '활동 중인 정회원', '활동 중인 수습회원', '기타 선택']),
+        'time': fields.String(description='알림 시간'),
+        'start_date': fields.String(description='시작일'),
+        'end_date': fields.String(description='종료일'),
+        'day': nullable(fields.String)(description="요일", example='월요일'),
+        'cycle': fields.String(description='알림 주기'),
+        'message': nullable(fields.String)(description='알림 메시지'),
+        'memo': nullable(fields.String)(description='메모'),
+        'member_list': fields.List(fields.String, description="알림 대상자 목록('알림 대상자 종류가 '기타 선택'이 아닌 경우 빈 리스트)")
+    })
+
+    model_user = api.model('model_user', {
+        'id': fields.String(description='회원 ID'),
+        'name': fields.String(description='이름'),
+        'grade': fields.Integer(description='학년')
+    })
+
+    model_payment_period = api.model('model_payment_period', {
+        'date': fields.String(description='년/월 (YYYY-MM-01)'),
+        'start_date': fields.String(description='납부 시작일'),
+        'end_date': fields.String(description='납부 마감일')
+    })
+
+    response_message = api.model('response_message', {
+        'message': fields.String(description='결과 메시지')
+    })
+
+    response_notification_list = api.model('response_notification_list', {
+        'notification_list': fields.List(fields.Nested(model_notification), description='알림 목록')
+    })
+
+
+    response_user_list = api.model('response_user_list', {
+        'user_list': fields.List(fields.Nested(model_user), description='회원 목록')
+    })
+
+    response_payment_period_list = api.model('response_payment_period_list', {
+        'payment_period_list': fields.List(fields.Nested(model_payment_period), description='회비 납부 기간 목록')
+    })
+
+    query_notification_id = api.parser().add_argument(
+        'notification_id', type=str, help='알림 ID'
+    )
