@@ -16,7 +16,7 @@ def date_change_to_string(list, item):
         if lst[item]:
             list[idx][item] = lst[item].strftime('%Y-%m-%d')
 
-@product.route("/all")
+@product.route("/list")
 @product.response(200,'Success',_admin_product_all)
 @product.response(400,'Bad Request',_admin_product_not_found)
 @product.response(500,'Internal Server Error',_admin_product_internal)
@@ -34,7 +34,7 @@ class ProductList(Resource):
         date_change_to_string(product_list, 'rent_day')
 
         if not product_list: # 대여할 물품이 존재하지 않을 경우 예외처리
-            message = {'message': '물품이 존재하지 않습니다.'}
+            message = {'message': '물품이 존재하지 않아요.'}
             return message, 400
         else:
             return product_list, 200
@@ -56,8 +56,9 @@ class SearchProductList(Resource):
         # json으로 전송하기 위해 python 클래스로 저장된 날짜 정보를 문자열로 변환
         date_change_to_string(product_list, 'deadline')
         date_change_to_string(product_list, 'rent_day')
+
         if not product_list:
-            message = {'message': '해당 물품이 존재하지 않습니다.'}
+            message = {'message': '해당 물품이 존재하지 않아요'}
             return message, 400
         else:
             return product_list, 200

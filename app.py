@@ -12,7 +12,6 @@ from api.home.home import home
 from api.attendance.attendance import attendance
 from api.admin.admin import admin
 from api.feedback.feedback import feedback
-from api.equipment.equipment import equipment
 from flask_jwt_extended import JWTManager
 import configparser
 import datetime
@@ -44,12 +43,8 @@ api.add_namespace(seminar, '/seminar')
 api.add_namespace(warning, '/warning')
 api.add_namespace(accounting, '/accounting')
 api.add_namespace(home, '/home')
-<<<<<<< HEAD
 api.add_namespace(feedback,'/feedback')
-api.add_namespace(equipment,'/equipment')
-=======
 api.add_namespace(attendance, '/attendance')
->>>>>>> 069031c55e0d3393d55f42319141db3b305153e3
 
 app.register_blueprint(admin)
 
