@@ -78,38 +78,17 @@ class UserProfile(Resource):
 
         return user_data, 200
 
-@user.route("/notification")
+@user.route("/notification/<string:id>")
 class UserNotification(Resource):
     def get(self):
-        data = [
-            {
-                "id": 1,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            },
-            {
-                "id": 2,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            },
-            {
-                "id": 1,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            },
-            {
-                "id": 1,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            }
-        ]
-
+        database = Database()
+        sql1 = f"select level from users where id={id}"
+        lev = database.execute_one(sql1)
+        if lev ==1:
+            sql2 = f"select n.time, n.message, n.memo from notification as n where id = 0 or id = 1;"
+        elif lev ==2 or lev==4:
+            sql2 = f"select n.time, n.message, n.memo from notification as n where id = 0 or id = 2;"
+        else:
+            sql2 = f""
+        data =  database.execute_all(sql2)
         return data
