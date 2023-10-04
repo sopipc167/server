@@ -40,13 +40,13 @@ class WarningStatusUserAPI(Resource):
             database.close()
 
         if not warning_list: # 경고를 받은 적이 없을 때 처리
-            return [], 200
+            return {'warning_list': []}, 200
         else:
             for idx, warning in enumerate(warning_list):
                 # date 및 category를 문자열로 변환
                 warning_list[idx]['date'] = warning['date'].strftime('%Y-%m-%d')
                 warning_list[idx]['category'] = convert_to_string(WARNING_CATEGORY, warning['category'])
-            return warning_list, 200
+            return {'warning_list': warning_list}, 200
     
     # 회원에 대한 경고 추가
     @warning.expect(WarningDTO.query_user_id, WarningDTO.model_warning, validate=True)
