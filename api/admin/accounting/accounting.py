@@ -29,7 +29,6 @@ def get_current_month():
     current_month = date(datetime.today().year, datetime.today().month, 1)
     return current_month.strftime('%Y-%m-%d')
     
-
 @accounting.route('')
 class MembershipFeeCheckAPI(Resource):
     # 월별 회비 납부 내역 얻기
@@ -100,14 +99,12 @@ class MembershipFeeCheckAPI(Resource):
         else:
             return {'monthly_payment_list': monthly_payment_list}, 200
 
-
 @accounting.route('/period')
 class MembershipFeePeriodAPI(Resource):
     # 전체 월별 회비 기간 얻기
     @accounting.response(200, 'OK', AdminAccountingDTO.model_payment_period_list)
     @accounting.response(400, 'Bad Request', AdminAccountingDTO.response_message)
     def get(self):
-
         # 금월 및 작년 6월 날짜 문자열로 얻기
         current_month = get_current_month()
         start_month = get_start_month()
