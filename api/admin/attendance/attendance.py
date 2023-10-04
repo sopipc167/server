@@ -106,7 +106,7 @@ class AttendanceUserListAPI(Resource):
             database.close()
 
         if not user_list: # 회원이 존재하지 않을 경우 처리
-            return [], 200
+            return {'user_list': []}, 200
         else:
             # index 및 time을 문자열로 변환
             for idx, user in enumerate(user_list):
@@ -115,7 +115,7 @@ class AttendanceUserListAPI(Resource):
                 user_list[idx]['state'] = convert_to_string(USER_ATTENDANCE_STATE, user['state'])
                 user_list[idx]['first_auth_time'] = str(user['first_auth_time'])
                 user_list[idx]['second_auth_time'] = str(user['second_auth_time'])
-        return user_list, 200
+            return {'user_list': user_list}, 200
     
 @attendance.route('/user/<int:attendance_id>')
 class AttendanceUserAPI(Resource):
