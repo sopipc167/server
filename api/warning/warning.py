@@ -50,7 +50,7 @@ class WarningStatusUserAPI(Resource):
     
     # 회원에 대한 경고 추가
     @warning.expect(WarningDTO.query_user_id, WarningDTO.model_warning, validate=True)
-    @warning.response(200, 'OK', WarningDTO.warning_response_message)
+    @warning.response(201, 'Created', WarningDTO.warning_response_message)
     def post(self):
         # 추후 토큰으로 대신할 예정
         user_id = request.args['user_id']
