@@ -55,10 +55,10 @@ class AttendanceDTO:
     )
 class adminProductDTO: #임원진 물품 DTO
     api = Namespace('product',description='임원진 물품관리')
-    admin_product_response = api.model('admin_product_response',{ #기본적으로 응답의 상태를 메세지로 출력하는 모델
+    admin_product_response = api.model('admin_product_response',{ # 기본적으로 응답의 상태를 메세지로 출력하는 모델
         'message':fields.String(description='응답 결과')
     })
-    admin_product_response_all = api.inherit('admin_product_response_all',admin_product_response,{ #정상적으로 결과를 출력했을 시의 모델
+    admin_product_response_all = api.inherit('admin_product_response_all',admin_product_response,{ # 정상적으로 결과를 출력했을 시의 모델
         'message':fields.String('성공적으로 물품을 불러왔어요'),
         'is_available':fields.Boolean(description='물품 이용 가능 여부'),
         'code':fields.String(description='물품 식별 code'),
@@ -75,10 +75,10 @@ class adminProductDTO: #임원진 물품 DTO
         'rent_day':fields.Date(description='대여일시(대여 물품 아닐시 null)'),
         'return_day':fields.Date(description='반납한 날짜(대여 물품 아닐시 null)'),
     })
-    no_product_find = api.inherit('no_product_find',admin_product_response,{ #찾는 물품이 존재하지 않았을 때의 모델
+    no_product_find = api.inherit('no_product_find',admin_product_response,{ # 찾는 물품이 존재하지 않았을 때의 모델
         'message':fields.String(" 해당 물품이 존재하지 않아요.")
     })
-    internal_error = api.inherit('internal_error', admin_product_response, { #내부 서버에 문제가 생겼을 시의 모델
+    internal_error = api.inherit('internal_error', admin_product_response, { # 내부 서버에 문제가 생겼을 시의 모델
         'message': fields.String("내부 서버에 문제가 발생했어요.")
     })
 

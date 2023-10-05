@@ -36,17 +36,17 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         content = body_data['content']
         database = Database()
 
-        #피드백 개수를 세서 id를 할당함
+        # 피드백 개수를 세서 id를 할당함
         sql = f"SELECT COUNT(code) from feedback;"
         count = database.execute(sql)
         feedback_code = count
 
-        #만약 작성항목에 널값이 있는지 확인
-        if not title: #피드백 제목을 작성하지 않을때 예외 발생
+        # 만약 작성항목에 널값이 있는지 확인
+        if not title: # 피드백 제목을 작성하지 않을때 예외 발생
             return {"message":"제목을 입력해주세요"}, 400
-        elif not content: #피드백 내용을 작성하지 않을때 예외 발생
+        elif not content: # 피드백 내용을 작성하지 않을때 예외 발생
             return {"message":"피드백 내용을 입력해주세요"}, 400
-        else:#피드백을 정상적으로 작성하고
+        else: # 피드백을 정상적으로 작성하고
             sql = f"INSERT INTO feedback(code, user_id, is_anony, title, content, is_answered) " \
                   f"VALUES('{feedback_code}', '{user_id}' ,{is_anony}, '{title}', '{content}', 0);"
             database.execute(sql)

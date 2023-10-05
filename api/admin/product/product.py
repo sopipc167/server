@@ -22,7 +22,7 @@ def date_change_to_string(list, item):
 @product.response(500,'Internal Server Error',_admin_product_internal)
 class ProductList(Resource):
     def get(self):
-        """전체 물품의 목록을 가져옵니다. 대여중인 물품은 대여 정보도 같이 가져옵니다."""
+        # 전체 물품의 목록을 가져옵니다. 대여중인 물품은 대여 정보도 같이 가져옵니다.
         database = Database()
         # left join으로 대여중인 물품은 대여 정보까지 함께 가져오도록 함
         sql = f"SELECT * FROM products AS p LEFT JOIN rent_list AS r ON p.code = r.product_code;"
@@ -45,7 +45,7 @@ class ProductList(Resource):
 @product.route("/list/<string:product_name>")
 class SearchProductList(Resource):
     def get(self, product_name):
-        """특정물품의 검색 결과를 가져옵니다. 대여중인 물품은 대여 정보도 같이 가져옵니다."""
+        # 특정물품의 검색 결과를 가져옵니다. 대여중인 물품은 대여 정보도 같이 가져옵니다.
         database = Database()
         # left join으로 대여중인 물품은 대여 정보까지 함께 가져오도록 함
         sql = (f"SELECT * FROM products AS p LEFT JOIN rent_list AS r ON p.code = r.product_code"\
