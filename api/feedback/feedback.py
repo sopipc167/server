@@ -37,18 +37,19 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         database = Database()
 
         # 피드백 개수를 세서 id를 할당함
-        sql = f"SELECT COUNT(code) from feedback;"
-        count = database.execute(sql)
-        feedback_code = count
+        sql = f"select f.code from p_cube_plus.feedback as f order by code desc limit 1;"
+        feedback_code = database.execute(sql)
 
         # 만약 작성항목에 널값이 있는지 확인
         if not title: # 피드백 제목을 작성하지 않을때 예외 발생
             return {"message":"제목을 입력해주세요"}, 400
+            database.close()
         elif not content: # 피드백 내용을 작성하지 않을때 예외 발생
             return {"message":"피드백 내용을 입력해주세요"}, 400
+            database.close()
         else: # 피드백을 정상적으로 작성하고
             sql = f"INSERT INTO feedback(code, user_id, is_anony, title, content, is_answered) " \
-                  f"VALUES('{feedback_code}', '{user_id}' ,{is_anony}, '{title}', '{content}', 0);"
+                  f"VALUES('{feedback_code['code']+1}', '{user_id}' ,{is_anony}, '{title}', '{content}', 0);"
             database.execute(sql)
             database.commit()
 
@@ -80,7 +81,6 @@ class FeedbackListGetAPI(Resource):
 @feedback.route("/answer/<int:feedback_code>")
 class FeedbackAnswerAPI(Resource):
     def post(self, feedback_code):
-
         # Body 데이터 얻어오기
         body_data = request.get_json()
         answer_id = body_data['user_id']
