@@ -225,7 +225,3 @@ class feedbackDTO:  # 피드백 DTO
     post_sucess = api.inherit('post_sucess', feedback_response, {
         'message': "피드백이 성공적으로 작성되었어요"
     })
-
-    query_attendance_id = api.parser().add_argument(
-        'attendance_id', type=int, help='출석 ID'
-    )
