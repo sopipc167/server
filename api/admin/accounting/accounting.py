@@ -135,7 +135,7 @@ class MembershipFeePeriodAPI(Resource):
     
     # 특정 달 회비 기간 생성하기
     @accounting.expect(AdminAccountingDTO.model_payment_period, required=True)
-    @accounting.response(200, 'OK', AdminAccountingDTO.response_message)
+    @accounting.response(201, 'Created', AdminAccountingDTO.response_message)
     @accounting.response(400, 'Bad Request', AdminAccountingDTO.response_message)
     def post(self):
         # Body 데이터 읽어오기
@@ -154,7 +154,7 @@ class MembershipFeePeriodAPI(Resource):
         finally:
             database.close()
 
-        return {'message': '회비 기간을 설정했어요 :)'}, 200
+        return {'message': '회비 기간을 설정했어요 :)'}, 201
 
     # 특정 달 회비 기간 수정하기
     @accounting.expect(AdminAccountingDTO.model_payment_period, required=True)
