@@ -59,7 +59,7 @@ class AccountingUserAPI(Resource):
             sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
             total_amount = int(database.execute_one(sql)['value'])
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -102,7 +102,7 @@ class AccountingListAPI(Resource):
             sql = f"SELECT value FROM data_map WHERE category = 'account_balance';"
             total_amount = int(database.execute_one(sql)['value'])
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
