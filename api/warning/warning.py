@@ -1,92 +1,128 @@
 from flask import Flask, request
 from flask_restx import Resource, Namespace
 from database.database import Database
+from utils.dto import WarningDTO
 
-warning = Namespace('warning')
+warning = WarningDTO.api
 
 # category(경고 종류)
 WARNING_CATEGORY = {-2: '경고 차감', -1: '주의 차감', 1: '주의 부여', 2: '경고 부여', 0: '경고 초기화'}
 
-# category를 문자열로 변환
-def wc_int_to_str(category):
-    return WARNING_CATEGORY.get(category, None)
+# index 데이터를 문자열로 변경
+def convert_to_string(dictionary, index):
+    return dictionary.get(index, None)
 
-# category를 index로 변환
-def wc_str_to_int(category):
-    for key, value in WARNING_CATEGORY.items():
-        if value == category:
+# 문자열 데이터를 index로 변경
+def convert_to_index(dictionary, string):
+    for key, value in dictionary.items():
+        if value == string:
             return key
     return None
 
-@warning.route('/<int:user_id>')
+@warning.route('')
 class WarningStatusUserAPI(Resource):
     # 회원의 경고 목록 얻기
-    def get(self, user_id):
-        # DB에서 user_id값에 맞는 경고 목록 불러오기
-        database = Database()
-        sql = f"SELECT * FROM warnings WHERE user_id = {user_id};"
-        warning_list = database.execute_all(sql)
-        database.close()
+    @warning.expect(WarningDTO.query_user_id, validate=True)
+    @warning.response(200, 'OK', WarningDTO.model_warning_list)
+    def get(self):
+        # 추후 토큰으로 대신할 예정
+        user_id = request.args['user_id']
+
+        # DB 예외 처리
+        try:
+            # DB에서 user_id값에 맞는 경고 목록 불러오기
+            database = Database()
+            sql = f"SELECT * FROM warnings WHERE user_id = '{user_id}';"
+            warning_list = database.execute_all(sql)
+        except:
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
+        finally:
+            database.close()
 
         if not warning_list: # 경고를 받은 적이 없을 때 처리
-            return [], 200
+            return {'warning_list': []}, 200
         else:
             for idx, warning in enumerate(warning_list):
                 # date 및 category를 문자열로 변환
                 warning_list[idx]['date'] = warning['date'].strftime('%Y-%m-%d')
-                warning_list[idx]['category'] = wc_int_to_str(warning['category'])
-            return warning_list, 200
+                warning_list[idx]['category'] = convert_to_string(WARNING_CATEGORY, warning['category'])
+            return {'warning_list': warning_list}, 200
     
     # 회원에 대한 경고 추가
-    def post(self, user_id):
+    @warning.expect(WarningDTO.query_user_id, WarningDTO.model_warning, validate=True)
+    @warning.response(201, 'Created', WarningDTO.warning_response_message)
+    def post(self):
+        # 추후 토큰으로 대신할 예정
+        user_id = request.args['user_id']
+
         # Body 데이터 읽어오기
         warning = request.get_json()
 
         # user_id 설정, category를 index로 변환
-        warning['user_id'] = user_id
-        warning['category'] = wc_str_to_int(warning['category'])
+        warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
 
-        # 경고 현황을 DB에 추가
-        database = Database()
-        sql = f"INSERT INTO warnings "\
-            f"VALUES({warning['id']}, {warning['user_id']}, {warning['category']}, "\
-            f"'{warning['message']}', '{warning['date']}', '{warning['etc_message']}');"
-        database.execute(sql)
-        database.commit()
-        database.close()
+        # DB 예외 처리
+        try:
+            # 경고 현황을 DB에 추가
+            database = Database()
+            sql = f"INSERT INTO warnings "\
+                f"VALUES(NULL, '{user_id}', {warning['category']}, "\
+                f"'{warning['date']}', '{warning['description']}', '{warning['comment']}');"
+            database.execute(sql)
+            database.commit()
+        except:
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
+        finally:
+            database.close()
 
-        return warning, 200
+        return {'message': '경고 정보를 추가했어요 :)'}, 201
 
-@warning.route('/<int:warning_id>/modify')
-class WarningStatusEditAPI(Resource):
     # 경고 현황 수정
-    def put(self, warning_id):
+    @warning.expect(WarningDTO.query_user_id, WarningDTO.model_warning_with_id, validate=True)
+    @warning.response(200, 'OK', WarningDTO.warning_response_message)
+    def put(self):
+        # 추후 토큰으로 대신할 예정
+        user_id = request.args['user_id']
+
         # Body 데이터 받아오기
         warning = request.get_json()
 
-        # id 설정, category를 index로 변환
-        warning['id'] = warning_id
-        warning['category'] = wc_str_to_int(warning['category'])
+        # category를 index로 변환
+        warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
 
-        # 수정된 사항을 DB에 반영
-        database = Database()
-        sql = f"UPDATE warnings SET "\
-        f"id = {warning['id']}, user_id = {warning['user_id']}, category = {warning['category']}, "\
-        f"message = '{warning['message']}', date = '{warning['date']}', etc_message = '{warning['etc_message']}' "\
-        f"WHERE id = {warning_id};"
-        database.execute(sql)
-        database.commit()
-        database.close()
+        # DB 예외 처리
+        try:
+            # 수정된 사항을 DB에 반영
+            database = Database()
+            sql = f"UPDATE warnings SET "\
+            f"id = {warning['id']}, user_id = '{user_id}', category = {warning['category']}, "\
+            f"date = '{warning['date']}', description = '{warning['description']}', comment = '{warning['comment']}' "\
+            f"WHERE id = {warning['id']};"
+            database.execute(sql)
+            database.commit()
+        except:
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
+        finally:
+            database.close()
 
         return {'message': '경고 정보를 수정했어요 :)'}, 200
 
     # 경고 현황 삭제
-    def delete(self, warning_id):
-        # 경고 현황을 DB에서 삭제
-        database = Database()
-        sql = f"DELETE FROM warnings WHERE id = {warning_id};"
-        database.execute(sql)
-        database.commit()
-        database.close()
+    @warning.expect(WarningDTO.query_warning_id, validate=True)
+    @warning.response(200, 'OK', WarningDTO.warning_response_message)
+    def delete(self):
+        warning_id = request.args['id']
+
+        # DB 예외 처리
+        try:
+            # 경고 현황을 DB에서 삭제
+            database = Database()
+            sql = f"DELETE FROM warnings WHERE id = {warning_id};"
+            database.execute(sql)
+            database.commit()
+        except:
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
+        finally:
+            database.close()
 
         return {'message': '경고 정보를 삭제했어요 :)'}, 200
