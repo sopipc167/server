@@ -224,3 +224,44 @@ class AccountingDTO:
     query_user_id = api.parser().add_argument(
         'user_id', type=str, help='유저 ID'
     )
+
+class AdminAccountingDTO:
+    api = Namespace('accounting', description='임원진 회계 관리 기능')
+
+    model_user_payment = api.model('model_user_payment', {
+        'date': fields.String(description='납부 년/월 (YYYY-MM-01 형식)', example='2023-09-01'),
+        'name': fields.String(description='이름', example='홍길동'),
+        'level': fields.String(description='회원 등급', example='정회원'),
+        'grade': fields.Integer(description='학년', example=4),
+        'amount': fields.Integer(description='납부 금액', example=5000),
+        'category': fields.String(description='납부 상태', example='납부 완료')
+    })
+
+    model_monthly_payment = api.model('model_monthly_payment', {
+        'date': fields.String(description='납부 년/월 (YYYY-MM-01 형식)', example='2023-09-01'),
+        'start_date': fields.String(description='금월 납부 기간 시작일', example='2023-09-20'),
+        'end_date': fields.String(description='금월 납부 기간 마감일', example='2023-09-28'),
+        'user_payment_list':  fields.List(fields.Nested(model_user_payment))
+    })
+
+    model_monthly_payment_list = api.model('model_monthly_payment_list', {
+        'monthly_payment_list': fields.List(fields.Nested(model_monthly_payment))
+    })
+
+    model_payment_period = api.model('model_payment_period', {
+        'date': fields.String(description='납부 년/월 (YYYY-MM-01 형식)', example='2023-09-01'),
+        'start_date': fields.String(description='금월 납부 기간 시작일', example='2023-09-20'),
+        'end_date': fields.String(description='금월 납부 기간 마감일', example='2023-09-28')
+    })
+
+    model_payment_period_list = api.model('model_payment_period_list', {
+        'payment_period_list': fields.List(fields.Nested(model_payment_period))
+    })
+
+    response_message = api.model('response_message', {
+        'message': fields.String(description='결과 메시지', example="결과 메시지")
+    })
+
+    query_admin_account_date = api.parser().add_argument(
+        'date', type=str, help='날짜'
+    )
