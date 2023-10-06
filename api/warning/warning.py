@@ -35,7 +35,7 @@ class WarningStatusUserAPI(Resource):
             sql = f"SELECT * FROM warnings WHERE user_id = '{user_id}';"
             warning_list = database.execute_all(sql)
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -71,7 +71,7 @@ class WarningStatusUserAPI(Resource):
             database.execute(sql)
             database.commit()
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -101,7 +101,7 @@ class WarningStatusUserAPI(Resource):
             database.execute(sql)
             database.commit()
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
@@ -121,7 +121,7 @@ class WarningStatusUserAPI(Resource):
             database.execute(sql)
             database.commit()
         except:
-            return {'message': '데이터베이스 오류가 발생했어요 :('}, 400
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
             database.close()
 
