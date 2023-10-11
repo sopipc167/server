@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_restx import Resource, Namespace
 from database.database import Database
 from utils.dto import WarningDTO
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 warning = WarningDTO.api
 
@@ -24,8 +25,9 @@ class WarningStatusUserAPI(Resource):
     # 회원의 경고 목록 얻기
     @warning.expect(WarningDTO.query_user_id, validate=True)
     @warning.response(200, 'OK', WarningDTO.model_warning_list)
+    @warning.doc(security='apiKey')
+    @jwt_required()
     def get(self):
-        # 추후 토큰으로 대신할 예정
         user_id = request.args['user_id']
 
         # DB 예외 처리
@@ -51,8 +53,9 @@ class WarningStatusUserAPI(Resource):
     # 회원에 대한 경고 추가
     @warning.expect(WarningDTO.query_user_id, WarningDTO.model_warning, validate=True)
     @warning.response(201, 'Created', WarningDTO.warning_response_message)
+    @warning.doc(security='apiKey')
+    @jwt_required()
     def post(self):
-        # 추후 토큰으로 대신할 예정
         user_id = request.args['user_id']
 
         # Body 데이터 읽어오기
@@ -80,8 +83,9 @@ class WarningStatusUserAPI(Resource):
     # 경고 현황 수정
     @warning.expect(WarningDTO.query_user_id, WarningDTO.model_warning_with_id, validate=True)
     @warning.response(200, 'OK', WarningDTO.warning_response_message)
+    @warning.doc(security='apiKey')
+    @jwt_required()
     def put(self):
-        # 추후 토큰으로 대신할 예정
         user_id = request.args['user_id']
 
         # Body 데이터 받아오기
@@ -110,6 +114,8 @@ class WarningStatusUserAPI(Resource):
     # 경고 현황 삭제
     @warning.expect(WarningDTO.query_warning_id, validate=True)
     @warning.response(200, 'OK', WarningDTO.warning_response_message)
+    @warning.doc(security='apiKey')
+    @jwt_required()
     def delete(self):
         warning_id = request.args['id']
 
