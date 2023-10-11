@@ -24,7 +24,7 @@ class TokenAPI(Resource):
         token = { 'access_token': access_token, 'refresh_token': refresh_token }
         return token, 200
 
-@auth.route('token/test')
+@auth.route('/token/test')
 class TokenTestAPI(Resource):
     @auth.expect(auth.parser().add_argument('user_id', type=str, help='유저 ID'), validate=True)
     def get(self):
