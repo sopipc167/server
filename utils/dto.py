@@ -27,7 +27,6 @@ class AttendanceDTO:
     })
 
     model_user_attendance = api.model('model_user_attendance', {
-        'user_id': fields.String(description='유저 ID'),
         'state': nullable(fields.String)(description='출석 상태', enum=['출석', '지각', '불참', None]),
         'first_auth_time': nullable(fields.String)(description='1차 인증 시간'),
         'second_auth_time': nullable(fields.String)(description='2차 인증 시간')
