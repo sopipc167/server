@@ -4,6 +4,7 @@ from flask_jwt_extended import (
     jwt_required, get_jwt_identity
 )
 from flask_restx import Resource, Namespace
+from flask import request
 
 auth = Namespace('auth')
 
@@ -18,6 +19,16 @@ class TokenAPI(Resource):
     def get(self):
         # refresh token으로 갱신
         user_id = get_jwt_identity()
+        access_token = create_access_token(identity=user_id)
+        refresh_token = create_refresh_token(identity=user_id)
+        token = { 'access_token': access_token, 'refresh_token': refresh_token }
+        return token, 200
+
+@auth.route('token/test')
+class TokenTestAPI(Resource):
+    @auth.expect(auth.parser().add_argument('user_id', type=str, help='유저 ID'), validate=True)
+    def get(self):
+        user_id = request.args['user_id']
         access_token = create_access_token(identity=user_id)
         refresh_token = create_refresh_token(identity=user_id)
         token = { 'access_token': access_token, 'refresh_token': refresh_token }
