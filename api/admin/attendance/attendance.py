@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_restx import Resource, Namespace
 from database.database import Database
 from utils.dto import AdminAttendanceDTO
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 attendance = AdminAttendanceDTO.api
 
@@ -31,6 +32,8 @@ class AttendanceInfoAPI(Resource):
     @attendance.expect(AdminAttendanceDTO.query_date, validate=True)
     @attendance.response(200, 'OK', AdminAttendanceDTO.response_attendance)
     @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
+    @attendance.doc(security='apiKey')
+    @jwt_required()
     def get(self, category):
         # Query Parameter 데이터 읽어오기
         date = request.args['date']
@@ -61,6 +64,8 @@ class AttendanceInfoAPI(Resource):
     @attendance.expect(AdminAttendanceDTO.model_attendance, validate=True)
     @attendance.response(200, 'OK', AdminAttendanceDTO.response_message)
     @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
+    @attendance.doc(security='apiKey')
+    @jwt_required()
     def put(self, category):
         # Body 데이터 읽어오기
         attendance = request.get_json()
@@ -89,6 +94,8 @@ class AttendanceUserListAPI(Resource):
     @attendance.expect(AdminAttendanceDTO.query_attendance_id, validate=True)
     @attendance.response(200, 'OK', AdminAttendanceDTO.response_user_list)
     @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
+    @attendance.doc(security='apiKey')
+    @jwt_required()
     def get(self):
         # Query Parameter 데이터 읽어오기
         attendance_id = request.args['attendance_id']
@@ -123,6 +130,8 @@ class AttendanceUserAPI(Resource):
     @attendance.expect(AdminAttendanceDTO.query_user_id, validate=True)
     @attendance.response(200, 'OK', AdminAttendanceDTO.model_user_attendance)
     @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
+    @attendance.doc(security='apiKey')
+    @jwt_required()
     def get(self, attendance_id):
         # Query Parameter 데이터 읽어오기
         user_id = request.args['user_id']
@@ -151,6 +160,8 @@ class AttendanceUserAPI(Resource):
     @attendance.expect(AdminAttendanceDTO.model_user_attendance, validate=True)
     @attendance.response(200, 'OK', AdminAttendanceDTO.response_message)
     @attendance.response(400, 'Bad Request', AdminAttendanceDTO.response_message)
+    @attendance.doc(security='apiKey')
+    @jwt_required()
     def put(self, attendance_id):
         # Body 데이터 읽어오기
         user_attendance = request.get_json()
