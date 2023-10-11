@@ -3,6 +3,7 @@ from flask_restx import Resource, Namespace
 from database.database import Database
 from datetime import datetime, date
 from utils.dto import AttendanceDTO
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 attendance = AttendanceDTO.api
 
@@ -26,12 +27,12 @@ def convert_to_index(dictionary, string):
 @attendance.route('/<int:attendance_id>')
 class AttendanceUserAPI(Resource):
     # user_id에 따른 출석 정보 얻기
-    @attendance.expect(AttendanceDTO.query_user_id, validate=True)
     @attendance.response(200, 'OK', AttendanceDTO.response_data)
     @attendance.response(400, 'Bad Request', AttendanceDTO.response_message)
+    @attendance.doc(security='apiKey')
+    @jwt_required()
     def get(self, attendance_id):
-        # 추후 토큰으로 대신할 예정
-        user_id = request.args['user_id']
+        user_id = get_jwt_identity()
 
         # DB 예외처리
         try:
@@ -79,7 +80,11 @@ class AttendanceUserAPI(Resource):
     @attendance.expect(AttendanceDTO.model_user_attendance, validate=True)
     @attendance.response(200, 'OK', AttendanceDTO.response_message)
     @attendance.response(400, 'Bad Request', AttendanceDTO.response_message)
+    @attendance.doc(security='apiKey')
+    @jwt_required()
     def put(self, attendance_id):
+        user_id = get_jwt_identity()
+
         # Body 데이터 읽어오기
         user_attendance = request.get_json()
 
@@ -94,7 +99,7 @@ class AttendanceUserAPI(Resource):
             sql = "INSERT INTO user_attendance (attendance_id, user_id, state, first_auth_time, second_auth_time) VALUES(%s, %s, %s, %s, %s) "\
                 "ON DUPLICATE KEY UPDATE state = %s, first_auth_time = %s, second_auth_time = %s;"
             
-            value = (attendance_id, user_attendance['user_id'], user_attendance['state'], user_attendance['first_auth_time'], user_attendance['second_auth_time'], 
+            value = (attendance_id, user_id, user_attendance['state'], user_attendance['first_auth_time'], user_attendance['second_auth_time'], 
                     user_attendance['state'], user_attendance['first_auth_time'], user_attendance['second_auth_time'])
             
             database.execute(sql, value)

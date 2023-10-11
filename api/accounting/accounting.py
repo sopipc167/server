@@ -3,6 +3,7 @@ from flask_restx import Resource, Namespace
 from database.database import Database
 from datetime import datetime, date
 from utils.dto import AccountingDTO
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 accounting = AccountingDTO.api
 
@@ -26,12 +27,12 @@ def convert_to_index(dictionary, string):
 @accounting.route('')
 class AccountingUserAPI(Resource):
     # 회원의 월별 회비 납부 내역 얻기
-    @accounting.expect(AccountingDTO.query_user_id, validate=True)
     @accounting.response(200, 'OK', AccountingDTO.model_payment_info)
     @accounting.response(400, 'Bad Request', AccountingDTO.accounting_response_message)
+    @accounting.doc(security='apiKey')
+    @jwt_required()
     def get(self):
-        # 추후 토큰으로 대체 예정
-        user_id = request.args['user_id']
+        user_id = get_jwt_identity()
 
         # 금월 및 작년 6월 날짜 구한 뒤 문자열로 변환 ('YYYY-MM-01' 형식)
         current_month = date(datetime.today().year, datetime.today().month, 1)
@@ -90,6 +91,8 @@ class AccountingListAPI(Resource):
     # 회비 내역 목록 얻기
     @accounting.response(200, 'OK', AccountingDTO.model_accounting_info)
     @accounting.response(400, 'Bad Request', AccountingDTO.accounting_response_message)
+    @accounting.doc(security='apiKey')
+    @jwt_required()
     def get(self):
         # DB 예외처리
         try:
