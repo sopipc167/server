@@ -3,6 +3,7 @@ from flask_restx import Resource, Namespace
 from database.database import Database
 from datetime import datetime, date
 from utils.dto import AdminNotificationDTO
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 notification = AdminNotificationDTO.api
 
@@ -31,6 +32,8 @@ class NotificationByCategoryAPI(Resource):
     # category에 따른 알림 목록 얻기
     @notification.response(200, 'OK', AdminNotificationDTO.response_notification_list)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def get(self, category):
         # DB 예외 처리
         try: 
@@ -66,6 +69,8 @@ class NotificationByCategoryAPI(Resource):
     @notification.expect(AdminNotificationDTO.model_notification, validate=True)
     @notification.response(200, 'OK', AdminNotificationDTO.response_message)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def post(self, category):
         # Body 데이터 읽어오기
         notification = request.get_json()
@@ -106,6 +111,8 @@ class NotificationByCategoryAPI(Resource):
     @notification.expect(AdminNotificationDTO.model_notification, validate=True)
     @notification.response(200, 'OK', AdminNotificationDTO.response_message)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def put(self, category):
         # Body 데이터 읽어오기
         notification = request.get_json()
@@ -149,6 +156,8 @@ class NotificationByCategoryAPI(Resource):
     @notification.expect(AdminNotificationDTO.query_notification_id, validate=True)
     @notification.response(200, 'OK', AdminNotificationDTO.response_message)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def delete(self, category):
         notification_id = request.args['notification_id']
 
@@ -177,6 +186,8 @@ class NotificationUserListAPI(Resource):
     # 회원 목록 얻기
     @notification.response(200, 'OK', AdminNotificationDTO.response_user_list)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def get(self):
         # DB 예외 처리
         try:
@@ -194,7 +205,9 @@ class NotificationUserListAPI(Resource):
 class NotificationPaymentPeriodAPI(Resource):
     # 전체 월별 회비 기간 얻기
     @notification.response(200, 'OK', AdminNotificationDTO.response_payment_period_list)
-    @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)    
+    @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def get(self):
 
         # 금월 및 작년 6월 날짜 문자열로 얻기
