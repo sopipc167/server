@@ -2,8 +2,10 @@ from flask import Flask, request
 from flask_restx import Resource, Namespace
 from database.database import Database
 from datetime import datetime, date
+from fcm.msg_manager import Notification_manager
 
 notification = Namespace('notification')
+manager = Notification_manager()
 
 # 알림 category
 NOTIFICATION_CATEGORY = {0: '정기 회의', 1: '디자인 파트 회의', 2: '아트 파트 회의', 3: '프로그래밍 파트 회의', 4: '청소', 5: '기타'}
@@ -53,6 +55,7 @@ class NotificationByCategoryAPI(Resource):
                 notification_list[idx]['member_list'] = member_list
             
             database.close()
+            manager.register_message(notification_list)
             return notification_list, 200
     
     # 알림 정보 추가
@@ -83,7 +86,7 @@ class NotificationByCategoryAPI(Resource):
 
         database.commit()
         database.close()
-
+        manager.register_message(notification_list)
         return notification, 200
 
 @notification.route('/modify/<int:notification_id>')
