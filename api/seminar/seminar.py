@@ -2,6 +2,7 @@ from flask import Flask, request
 from flask_restx import Resource, Namespace
 from database.database import Database
 from utils.dto import SeminarDTO
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 seminar = SeminarDTO.api
 
@@ -24,6 +25,8 @@ class SeminarUserAPI(Resource):
     # 회원의 세미나 목록 얻기
     @seminar.expect(SeminarDTO.query_user_id, validate=True)
     @seminar.response(200, 'OK', SeminarDTO.model_seminar_list)
+    @seminar.doc(security='apiKey')
+    @jwt_required()
     def get(self):
         user_id = request.args['user_id']
 
@@ -50,6 +53,8 @@ class SeminarUserAPI(Resource):
     # 세미나 정보 추가
     @seminar.expect(SeminarDTO.query_user_id, SeminarDTO.model_seminar, validate=True)
     @seminar.response(201, 'Created', SeminarDTO.seminar_response_message)
+    @seminar.doc(security='apiKey')
+    @jwt_required()
     def post(self):
         user_id = request.args['user_id']
 
@@ -78,6 +83,8 @@ class SeminarUserAPI(Resource):
     # 세미나 정보 수정
     @seminar.expect(SeminarDTO.query_user_id, SeminarDTO.model_seminar_with_id, validate=True)
     @seminar.response(200, 'OK', SeminarDTO.seminar_response_message)
+    @seminar.doc(security='apiKey')
+    @jwt_required()
     def put(self):
         user_id = request.args['user_id']
 
@@ -107,6 +114,8 @@ class SeminarUserAPI(Resource):
     # 세미나 정보 삭제
     @seminar.expect(SeminarDTO.query_seminar_id, validate=True)
     @seminar.response(200, 'OK', SeminarDTO.seminar_response_message)
+    @seminar.doc(security='apiKey')
+    @jwt_required()
     def delete(self):
         seminar_id = request.args['id']
 
