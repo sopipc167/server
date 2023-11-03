@@ -264,3 +264,33 @@ class AdminAccountingDTO:
     query_admin_account_date = api.parser().add_argument(
         'date', type=str, help='날짜'
     )
+
+class SeminarDTO:
+    api = Namespace('seminar', description='세미나 내역')
+
+    model_seminar = api.model('model_seminar', {
+        'title': fields.String(description='제목', example='세미나 제목'),
+        'url': fields.String(description='카페 내 게시물 주소', example='www.aaa.com/3'),
+        'category': fields.String(description='파트', enum=['디자인', '아트', '프로그래밍', '재학생']),
+        'date': fields.String(description='발표 날짜', example='2023-09-26'),
+    })
+
+    model_seminar_with_id = api.inherit('model_seminar_with_id', model_seminar, {
+        'id': fields.Integer(description='세미나 ID')
+    })
+
+    model_seminar_list = api.model('model_seminar_list', {
+        'seminar_list': fields.List(fields.Nested(model_seminar_with_id), description='세미나 목록')
+    })
+
+    query_user_id = api.parser().add_argument(
+        'user_id', type=str, help='유저 ID'
+    )
+
+    query_seminar_id = api.parser().add_argument(
+        'id', type=str, help='세미나 ID'
+    )
+
+    seminar_response_message = api.model('seminar_reponse_message', {
+        'message': fields.String(description='결과 메시지', example="결과 메시지 입니다 :)")
+    })
