@@ -43,3 +43,7 @@ class AccountingEnum(EnumTool):
 class SeminarEnum(EnumTool):
     # 세미나 종류
     CATEGORY = {0: '디자인', 1: '아트', 2: '프로그래밍', 3: '재학생'}
+
+class WarningEnum(EnumTool):
+    # 경고 종류
+    CATEGORY = {-2: '경고 차감', -1: '주의 차감', 1: '주의 부여', 2: '경고 부여', 0: '경고 초기화'}
