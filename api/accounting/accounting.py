@@ -4,25 +4,9 @@ from database.database import Database
 from datetime import datetime, date
 from utils.dto import AccountingDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.enum_tool import convert_to_string, convert_to_index, AccountingEnum
 
 accounting = AccountingDTO.api
-
-# 회비 category
-MEMBERSHIP_FEE_CATEGORY = {1: '납부 완료', 2: '납부 완료', 3: '납부 지연', 4: '미납'}
-
-# payment_method(결제 수단)
-PAYMENT_METHOD = {0: '통장', 1: '금고'}
-
-# index 데이터를 문자열로 변경
-def convert_to_string(dictionary, index):
-    return dictionary.get(index, None)
-
-# 문자열 데이터를 index로 변경
-def convert_to_index(dictionary, string):
-    for key, value in dictionary.items():
-        if value == string:
-            return key
-    return None
 
 @accounting.route('')
 class AccountingUserAPI(Resource):
@@ -82,7 +66,7 @@ class AccountingUserAPI(Resource):
             for idx, monthly_payment in enumerate(monthly_payment_list):
                 # date 및 category를 문자열로 변환
                 monthly_payment_list[idx]['date'] = monthly_payment['date'].strftime('%Y-%m-%d')
-                monthly_payment_list[idx]['category'] = convert_to_string(MEMBERSHIP_FEE_CATEGORY, monthly_payment['category'])
+                monthly_payment_list[idx]['category'] = convert_to_string(AccountingEnum.PAYMENT_STATE, monthly_payment['category'])
 
             return payment_data, 200
     
@@ -117,5 +101,5 @@ class AccountingListAPI(Resource):
             for idx, accounting in enumerate(accounting_list):
                 # date, payment_method를 문자열로 변환
                 accounting_list[idx]['date'] = accounting['date'].strftime('%Y-%m-%d')
-                accounting_list[idx]['payment_method'] = convert_to_string(PAYMENT_METHOD, accounting['payment_method'])
+                accounting_list[idx]['payment_method'] = convert_to_string(AccountingEnum.PAYMENT_METHOD, accounting['payment_method'])
             return result_data, 200
