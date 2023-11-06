@@ -30,3 +30,6 @@ class AccountingEnum(EnumTool):
     PAYMENT_STATE = {0: '환불 대상', 1: '기간 내 납입', 2: '조기 납입', 3: '체납', 4: '미입금'}
     MEMBERSHIP_FEE_CATEGORY = {1: '납부 완료', 2: '납부 완료', 3: '납부 지연', 4: '미납'}
     PAYMENT_METHOD = {0: '통장', 1: '금고'}
+
+class SeminarEnum(EnumTool):
+    CATEGORY = {0: '디자인', 1: '아트', 2: '프로그래밍', 3: '재학생'}
