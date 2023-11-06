@@ -3,22 +3,9 @@ from flask_restx import Resource, Namespace
 from database.database import Database
 from utils.dto import SeminarDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.enum_tool import convert_to_string, convert_to_index, SeminarEnum
 
 seminar = SeminarDTO.api
-
-# category(세미나 종류)
-SEMINAR_CATEGORY = {0: '디자인', 1: '아트', 2: '프로그래밍', 3: '재학생'}
-
-# index 데이터를 문자열로 변경
-def convert_to_string(dictionary, index):
-    return dictionary.get(index, None)
-
-# 문자열 데이터를 index로 변경
-def convert_to_index(dictionary, string):
-    for key, value in dictionary.items():
-        if value == string:
-            return key
-    return None
 
 @seminar.route('')
 class SeminarUserAPI(Resource):
@@ -47,7 +34,7 @@ class SeminarUserAPI(Resource):
             for idx, seminar in enumerate(seminar_list):
                 # date 및 category를 문자열로 변경
                 seminar_list[idx]['date'] = seminar['date'].strftime('%Y-%m-%d')
-                seminar_list[idx]['category'] = convert_to_string(SEMINAR_CATEGORY, seminar['category'])
+                seminar_list[idx]['category'] = convert_to_string(SeminarEnum.CATEGORY, seminar['category'])
             return {'seminar_list': seminar_list}, 200
         
     # 세미나 정보 추가
@@ -62,7 +49,7 @@ class SeminarUserAPI(Resource):
         seminar = request.get_json()
 
         # category를 index로 변환
-        seminar['category'] = convert_to_index(SEMINAR_CATEGORY, seminar['category'])
+        seminar['category'] = convert_to_index(SeminarEnum.CATEGORY, seminar['category'])
 
         # DB 예외 처리
         try:
@@ -92,7 +79,7 @@ class SeminarUserAPI(Resource):
         seminar = request.get_json()
 
         # category를 index로 변환
-        seminar['category'] = convert_to_index(SEMINAR_CATEGORY, seminar['category'])
+        seminar['category'] = convert_to_index(SeminarEnum.CATEGORY, seminar['category'])
 
         # DB 예외 처리
         try:
