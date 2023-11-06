@@ -11,3 +11,8 @@ class EnumTool:
             if value == string:
                 return key
         return None
+    
+class UserEnum(EnumTool):
+    RANK = {0: '탈퇴자', 1: '정회원', 2: '수습회원', 3: '명예회원', 4: '수습회원(휴학)', 5: '졸업생'}
+    PART = {0: '디자인', 2: '아트', 3: '프로그래밍'}
+    REST_TYPE = {0: '일반휴학', 1:'군휴학'}
