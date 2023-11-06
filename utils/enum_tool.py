@@ -1,5 +1,5 @@
 # index 데이터를 문자열로 변경
-def convert_to_str(dictionary, index):
+def convert_to_string(dictionary, index):
     return dictionary.get(index, None)
 
 # 문자열 데이터를 index로 변경
