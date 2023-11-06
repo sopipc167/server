@@ -4,21 +4,9 @@ from database.database import Database
 from datetime import datetime, date
 from utils.dto import AdminAccountingDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.enum_tool import convert_to_string, convert_to_index, AccountingEnum, UserEnum
 
 accounting = AdminAccountingDTO.api
-
-# 회비 납부 상태 category (현재)
-CURRENT_PAYMENT_STATE_CATEGORY = {1: '납부자', 2: '납부자', 4: '미납부자'}
-
-# 회비 납부 상태 category (과거)
-PAST_PAYMENT_STATE_CATEGORY = {1: '정상 납부', 2: '정상 납부', 3: '납부 지각', 4: '미납부자'}
-
-# 유저 등급 category
-USER_LEVEL_CATEGORY = {-1: '탈퇴자', 0: '정회원', 1: '수습회원', 2: '명예회원', 3: '수습회원(휴학)', 4:'졸업생'}
-
-# index 데이터를 문자열로 변경
-def convert_to_string(dictionary, index):
-    return dictionary.get(index, None)
 
 # 작년 6월의 시작일을 문자열로 반환
 def get_start_month():
@@ -74,11 +62,11 @@ class MembershipFeeCheckAPI(Resource):
             user_payment_list[idx]['date'] = user_payment['date'].strftime('%Y-%m-%d')
 
             if user_payment_list[idx]['date'] == current_month:
-                user_payment_list[idx]['category'] = convert_to_string(CURRENT_PAYMENT_STATE_CATEGORY, user_payment['category'])
+                user_payment_list[idx]['category'] = convert_to_string(AccountingEnum.PAYMENT_STATE, user_payment['category'])
             else:
-                user_payment_list[idx]['category'] = convert_to_string(PAST_PAYMENT_STATE_CATEGORY, user_payment['category'])
+                user_payment_list[idx]['category'] = convert_to_string(AccountingEnum.PAYMENT_STATE, user_payment['category'])
 
-            user_payment_list[idx]['level'] = convert_to_string(USER_LEVEL_CATEGORY, user_payment['level'])
+            user_payment_list[idx]['level'] = convert_to_string(UserEnum.RANK, user_payment['level'])
 
         # 월별 회비 납부 내역 만들기
         monthly_payment_list = []

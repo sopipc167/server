@@ -3,22 +3,9 @@ from flask_restx import Resource, Namespace
 from database.database import Database
 from utils.dto import WarningDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.enum_tool import convert_to_string, convert_to_index, WarningEnum
 
 warning = WarningDTO.api
-
-# category(경고 종류)
-WARNING_CATEGORY = {-2: '경고 차감', -1: '주의 차감', 1: '주의 부여', 2: '경고 부여', 0: '경고 초기화'}
-
-# index 데이터를 문자열로 변경
-def convert_to_string(dictionary, index):
-    return dictionary.get(index, None)
-
-# 문자열 데이터를 index로 변경
-def convert_to_index(dictionary, string):
-    for key, value in dictionary.items():
-        if value == string:
-            return key
-    return None
 
 @warning.route('')
 class WarningStatusUserAPI(Resource):
@@ -47,7 +34,7 @@ class WarningStatusUserAPI(Resource):
             for idx, warning in enumerate(warning_list):
                 # date 및 category를 문자열로 변환
                 warning_list[idx]['date'] = warning['date'].strftime('%Y-%m-%d')
-                warning_list[idx]['category'] = convert_to_string(WARNING_CATEGORY, warning['category'])
+                warning_list[idx]['category'] = convert_to_string(WarningEnum.CATEGORY, warning['category'])
             return {'warning_list': warning_list}, 200
     
     # 회원에 대한 경고 추가
@@ -62,7 +49,7 @@ class WarningStatusUserAPI(Resource):
         warning = request.get_json()
 
         # user_id 설정, category를 index로 변환
-        warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
+        warning['category'] = convert_to_index(WarningEnum.CATEGORY, warning['category'])
 
         # DB 예외 처리
         try:
@@ -92,7 +79,7 @@ class WarningStatusUserAPI(Resource):
         warning = request.get_json()
 
         # category를 index로 변환
-        warning['category'] = convert_to_index(WARNING_CATEGORY, warning['category'])
+        warning['category'] = convert_to_index(WarningEnum.CATEGORY, warning['category'])
 
         # DB 예외 처리
         try:
