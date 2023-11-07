@@ -35,8 +35,8 @@ class NotificationByCategoryAPI(Resource):
                 notification_list[idx]['time'] = str(notification['time'])
                 notification_list[idx]['start_date'] = notification['start_date'].strftime('%Y-%m-%d')
                 notification_list[idx]['end_date'] = notification['end_date'].strftime('%Y-%m-%d')
-                notification_list[idx]['member_category'] = convert_to_string(MEMBER_CATEGORY, notification['member_category'])
-                notification_list[idx]['day'] = convert_to_string(DAY_CATEGORY, notification['day'])
+                notification_list[idx]['member_category'] = convert_to_string(NotificationEnum.MEMBER_CATEGORY, notification['member_category'])
+                notification_list[idx]['day'] = convert_to_string(NotificationEnum.DAY_CATEGORY, notification['day'])
 
                 # DB에서 알림 대상자 목록 가져오기
                 sql = f"SELECT user_id FROM notification_member WHERE notification_id = {notification['id']};"
