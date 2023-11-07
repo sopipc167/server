@@ -5,6 +5,8 @@ from datetime import datetime, date
 from utils.dto import AdminAccountingDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.enum_tool import convert_to_string, convert_to_index, AccountingEnum, UserEnum
+from utils.aes_cipher import AESCipher
+
 
 accounting = AdminAccountingDTO.api
 
@@ -46,6 +48,11 @@ class MembershipFeeCheckAPI(Resource):
                 f"WHERE date between '{start_month}' and '{current_month}' "\
                 f"ORDER BY date;"
             user_payment_list = database.execute_all(sql)
+
+            # 회원 이름 복호화
+            crypt = AESCipher()
+            for idx, user_payment in enumerate(user_payment_list):
+                user_payment_list[idx]['name'] = crypt.decrypt(user_payment['name'])
         except:
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:

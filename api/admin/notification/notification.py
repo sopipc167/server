@@ -5,6 +5,7 @@ from datetime import datetime, date
 from utils.dto import AdminNotificationDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.enum_tool import convert_to_index, convert_to_string, NotificationEnum
+from utils.aes_cipher import AESCipher
 
 notification = AdminNotificationDTO.api
 
@@ -176,6 +177,11 @@ class NotificationUserListAPI(Resource):
             database = Database()
             sql = "SELECT id, name, grade FROM users;"
             user_list = database.execute_all(sql)
+
+            # 회원 이름 복호화
+            cript = AESCipher()
+            for idx, user in enumerate(user_list):
+                user_list[idx]['name'] = cript.decrypt(user['name'])
         except:
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
