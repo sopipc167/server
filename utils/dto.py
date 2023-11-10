@@ -10,15 +10,15 @@ class AttendanceDTO:
     api = Namespace('attendance', description='회원 출석 기능')
 
     model_attendance = api.model('model_attendance', {
-        'date': fields.Date(description='출석 날짜'),
-        'category': fields.String(description='회의 종류'),
-        'first_auth_start_time': fields.String(description='1차 인증 시작 시간'),
-        'first_auth_end_time': fields.String(description='1차 인증 종료 시간'),
-        'second_auth_start_time': fields.String(description='2차 인증 시작 시간'),
-        'second_auth_end_time': fields.String(description='2차 인증 종료 시간'),
+        'date': fields.Date(description='출석 날짜', example='2023-09-19'),
+        'category': fields.String(description='회의 종류', enum=['디자인', '아트', '프로그래밍', '정기', '기타']),
+        'first_auth_start_time': fields.String(description='1차 인증 시작 시간', example='16:55:00'),
+        'first_auth_end_time': fields.String(description='1차 인증 종료 시간', example='17:04:59'),
+        'second_auth_start_time': fields.String(description='2차 인증 시작 시간', example='17:55:00'),
+        'second_auth_end_time': fields.String(description='2차 인증 종료 시간', example='18:04:59'),
         'state': nullable(fields.String)(description='출석 상태', enum=['출석', '지각', '불참', None]),
-        'first_auth_time': nullable(fields.String)(description='1차 인증 시간'),
-        'second_auth_time': nullable(fields.String)(description='2차 인증 시간')
+        'first_auth_time': nullable(fields.String)(description='1차 인증 시간', example='16:52:00'),
+        'second_auth_time': nullable(fields.String)(description='2차 인증 시간', example='17:53:00')
     })
 
     model_record = api.model('model_record', {
@@ -43,6 +43,10 @@ class AttendanceDTO:
 
     query_user_id = api.parser().add_argument(
         'user_id', type=str, help='유저 ID'
+    )
+
+    query_prev_attendance_count = api.parser().add_argument(
+        'prev_attendance_count', type=str, help='과거 출석 기록 수'
     )
 
 class AdminNotificationDTO:
