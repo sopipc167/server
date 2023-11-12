@@ -122,7 +122,6 @@ class AttendanceUserAPI(Resource):
             # DB에서 회원 출석 정보 불러오기
             database = Database()
             sql = f"SELECT * FROM user_attendance WHERE attendance_id = {attendance_id} and user_id = '{user_id}';"
-            print(sql)
             user_attendance = database.execute_one(sql)
         except:
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
