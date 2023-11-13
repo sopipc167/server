@@ -4,6 +4,7 @@ from database.database import Database
 from utils.dto import AdminAttendanceDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.enum_tool import convert_to_string, convert_to_index, AttendanceEnum, UserEnum
+from utils.aes_cipher import AESCipher
 
 attendance = AdminAttendanceDTO.api
 
@@ -88,6 +89,11 @@ class AttendanceUserListAPI(Resource):
             sql = "SELECT u.id, u.name, u.grade, u.part_index, u.rest_type, ua.first_auth_time, ua.second_auth_time, ua.state FROM users u LEFT JOIN user_attendance ua "\
                 f"ON u.id = ua.user_id WHERE ua.attendance_id = {attendance_id};"
             user_list = database.execute_all(sql)
+
+            # 회원 이름 복호화
+            cript = AESCipher()
+            for idx, user in enumerate(user_list):
+                user_list[idx]['name'] = cript.decrypt(user['name'])
         except:
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
