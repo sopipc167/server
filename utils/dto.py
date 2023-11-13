@@ -169,6 +169,10 @@ class WarningDTO:
         'warning_list': fields.List(fields.Nested(model_warning_with_id), description='경고 목록')
     })
 
+    model_warning_list_with_total = api.inherit('model_warning_list_with_total', model_warning_list, {
+        'warning_total': fields.Float(description='누적 경고 횟수', example='2.5')
+    })
+
     query_user_id = api.parser().add_argument(
         'user_id', type=str, help='유저 ID'
     )

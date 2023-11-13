@@ -8,10 +8,10 @@ from utils.enum_tool import convert_to_string, convert_to_index, WarningEnum
 warning = WarningDTO.api
 
 @warning.route('')
-class WarningStatusUserAPI(Resource):
+class WarningUserAPI(Resource):
     # 회원의 경고 목록 얻기
     @warning.expect(WarningDTO.query_user_id, validate=True)
-    @warning.response(200, 'OK', WarningDTO.model_warning_list)
+    @warning.response(200, 'OK', WarningDTO.model_warning_list_with_total)
     @warning.doc(security='apiKey')
     @jwt_required()
     def get(self):
@@ -21,7 +21,7 @@ class WarningStatusUserAPI(Resource):
         try:
             # DB에서 user_id값에 맞는 경고 목록 불러오기
             database = Database()
-            sql = f"SELECT * FROM warnings WHERE user_id = '{user_id}';"
+            sql = f"SELECT * FROM warnings WHERE user_id = '{user_id}' ORDER BY date;"
             warning_list = database.execute_all(sql)
         except:
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
@@ -29,13 +29,26 @@ class WarningStatusUserAPI(Resource):
             database.close()
 
         if not warning_list: # 경고를 받은 적이 없을 때 처리
-            return {'warning_list': []}, 200
+            return {'warning_list': [], 'total_warning': 0}, 200
         else:
+            total_warning = 0
             for idx, warning in enumerate(warning_list):
-                # date 및 category를 문자열로 변환
+                # date를 문자열로 변환
                 warning_list[idx]['date'] = warning['date'].strftime('%Y-%m-%d')
+                
+                # 누적 경고 횟수 계산
+                single_warning = warning['category']
+                if single_warning == 0:
+                    total_warning = 0
+                else:
+                    total_warning += single_warning
+                    if total_warning < 0:
+                        total_warning = 0
+
+                # category를 문자열로 변환
                 warning_list[idx]['category'] = convert_to_string(WarningEnum.CATEGORY, warning['category'])
-            return {'warning_list': warning_list}, 200
+
+            return {'warning_list': warning_list, 'total_warning': total_warning / 2.0}, 200
     
     # 회원에 대한 경고 추가
     @warning.expect(WarningDTO.query_user_id, WarningDTO.model_warning, validate=True)
