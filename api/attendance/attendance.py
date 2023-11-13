@@ -11,12 +11,16 @@ attendance = AttendanceDTO.api
 @attendance.route('/<int:attendance_id>')
 class AttendanceUserAPI(Resource):
     # user_id에 따른 출석 정보 얻기
+    @attendance.expect(AttendanceDTO.query_prev_attendance_count, validate=True)
     @attendance.response(200, 'OK', AttendanceDTO.response_data)
     @attendance.response(400, 'Bad Request', AttendanceDTO.response_message)
     @attendance.doc(security='apiKey')
     @jwt_required()
     def get(self, attendance_id):
         user_id = get_jwt_identity()
+
+        # query parameter 읽어오기
+        prev_attendance_count = int(request.args['prev_attendance_count'])
 
         # DB 예외처리
         try:
@@ -45,7 +49,7 @@ class AttendanceUserAPI(Resource):
         for idx, record in enumerate(record_list):
             record_list[idx]['date'] = record['date'].strftime('%Y-%m-%d')
         
-        record_list.extend([None] * (4 - len(record_list)))
+        record_list.extend([None] * (prev_attendance_count - len(record_list)))
 
         # date, time, category, state를 문자열로 변환
         attendance['date'] = attendance['date'].strftime('%Y-%m-%d')
