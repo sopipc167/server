@@ -1,7 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials,messaging
-from PcubeMessage import Pcube_plus_msg
-class Notification_manager:
+from pcube_message import PcubePlusMsg
+class NotificationManager:
     cred_path = "violet-strike-firebase-adminsdk-2dlvt-8b8e680cb3.json"
     cred = credentials.Certificate(cred_path)
     firebase_admin.initialize_app(cred)
@@ -11,7 +11,7 @@ class Notification_manager:
         title = data['message']
         content = data['memo']
         token = ""
-        self.msg_lst.append(Pcube_plus_msg(title,content,token))
+        self.msg_lst.append(PcubePlusMsg(title,content,token))
     def delete_notification(n):
         pass
 
