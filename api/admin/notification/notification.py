@@ -3,34 +3,19 @@ from flask_restx import Resource, Namespace
 from database.database import Database
 from datetime import datetime, date
 from utils.dto import AdminNotificationDTO
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.enum_tool import convert_to_index, convert_to_string, NotificationEnum
+from utils.aes_cipher import AESCipher
 
 notification = AdminNotificationDTO.api
-
-# 알림 category
-NOTIFICATION_CATEGORY = {0: '디자인', 1: '아트', 2: '프로그래밍', 3: '정기', 4: '청소', 5: '기타'}
-
-# 알림 대상자 category
-MEMBER_CATEGORY = {0: '활동 중인 회원 전체', 1: '활동 중인 정회원', 2: '활동 중인 수습회원', 3: '기타 선택'}
-
-# 요일 category
-DAY_CATEGORY = {0: '월요일', 1: '화요일', 2: '수요일', 3: '목요일', 4: '금요일', 5: '토요일', 6: '일요일'}
-
-# index 데이터를 문자열로 변경
-def convert_to_string(dictionary, index):
-    return dictionary.get(index, None)
-
-# 문자열 데이터를 index로 변경
-def convert_to_index(dictionary, string):
-    for key, value in dictionary.items():
-        if value == string:
-            return key
-    return None
 
 @notification.route('/category/<int:category>')
 class NotificationByCategoryAPI(Resource):
     # category에 따른 알림 목록 얻기
     @notification.response(200, 'OK', AdminNotificationDTO.response_notification_list)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def get(self, category):
         # DB 예외 처리
         try: 
@@ -51,8 +36,8 @@ class NotificationByCategoryAPI(Resource):
                 notification_list[idx]['time'] = str(notification['time'])
                 notification_list[idx]['start_date'] = notification['start_date'].strftime('%Y-%m-%d')
                 notification_list[idx]['end_date'] = notification['end_date'].strftime('%Y-%m-%d')
-                notification_list[idx]['member_category'] = convert_to_string(MEMBER_CATEGORY, notification['member_category'])
-                notification_list[idx]['day'] = convert_to_string(DAY_CATEGORY, notification['day'])
+                notification_list[idx]['member_category'] = convert_to_string(NotificationEnum.MEMBER_CATEGORY, notification['member_category'])
+                notification_list[idx]['day'] = convert_to_string(NotificationEnum.DAY_CATEGORY, notification['day'])
 
                 # DB에서 알림 대상자 목록 가져오기
                 sql = f"SELECT user_id FROM notification_member WHERE notification_id = {notification['id']};"
@@ -66,13 +51,15 @@ class NotificationByCategoryAPI(Resource):
     @notification.expect(AdminNotificationDTO.model_notification, validate=True)
     @notification.response(200, 'OK', AdminNotificationDTO.response_message)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def post(self, category):
         # Body 데이터 읽어오기
         notification = request.get_json()
         
         # category, day를 index로 변환
-        notification['member_category'] = convert_to_index(MEMBER_CATEGORY, notification['member_category'])
-        notification['day'] = convert_to_index(DAY_CATEGORY, notification['day'])
+        notification['member_category'] = convert_to_index(NotificationEnum.MEMBER_CATEGORY, notification['member_category'])
+        notification['day'] = convert_to_index(NotificationEnum.DAY_CATEGORY, notification['day'])
         
         # DB 예외 처리
         try:
@@ -106,13 +93,15 @@ class NotificationByCategoryAPI(Resource):
     @notification.expect(AdminNotificationDTO.model_notification, validate=True)
     @notification.response(200, 'OK', AdminNotificationDTO.response_message)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def put(self, category):
         # Body 데이터 읽어오기
         notification = request.get_json()
 
         # category, day를 index로 변환
-        notification['member_category'] = convert_to_index(MEMBER_CATEGORY, notification['member_category'])
-        notification['day'] = convert_to_index(DAY_CATEGORY, notification['day'])
+        notification['member_category'] = convert_to_index(NotificationEnum.MEMBER_CATEGORY, notification['member_category'])
+        notification['day'] = convert_to_index(NotificationEnum.DAY_CATEGORY, notification['day'])
 
         print(notification)
         # DB 예외 처리
@@ -149,6 +138,8 @@ class NotificationByCategoryAPI(Resource):
     @notification.expect(AdminNotificationDTO.query_notification_id, validate=True)
     @notification.response(200, 'OK', AdminNotificationDTO.response_message)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def delete(self, category):
         notification_id = request.args['notification_id']
 
@@ -177,6 +168,8 @@ class NotificationUserListAPI(Resource):
     # 회원 목록 얻기
     @notification.response(200, 'OK', AdminNotificationDTO.response_user_list)
     @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def get(self):
         # DB 예외 처리
         try:
@@ -184,6 +177,11 @@ class NotificationUserListAPI(Resource):
             database = Database()
             sql = "SELECT id, name, grade FROM users;"
             user_list = database.execute_all(sql)
+
+            # 회원 이름 복호화
+            cript = AESCipher()
+            for idx, user in enumerate(user_list):
+                user_list[idx]['name'] = cript.decrypt(user['name'])
         except:
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
         finally:
@@ -194,7 +192,9 @@ class NotificationUserListAPI(Resource):
 class NotificationPaymentPeriodAPI(Resource):
     # 전체 월별 회비 기간 얻기
     @notification.response(200, 'OK', AdminNotificationDTO.response_payment_period_list)
-    @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)    
+    @notification.response(400, 'Bad Request', AdminNotificationDTO.response_message)
+    @notification.doc(security='apiKey')
+    @jwt_required()
     def get(self):
 
         # 금월 및 작년 6월 날짜 문자열로 얻기
