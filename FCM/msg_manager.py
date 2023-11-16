@@ -10,8 +10,10 @@ class NotificationManager:
     def register_message(self,data,token):
         title = data['message']
         content = data['memo']
+        day_of_week=data['cycle']
+        cron = data['time']
         token = ""
-        self.msg_lst.append(PcubePlusMsg(title,content,token))
+        self.msg_lst.append(PcubePlusMsg(title,content,token,day_of_week,cron))
     def delete_notification(n):
         pass
 

@@ -3,12 +3,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 sched = BackgroundScheduler(daemon = True)
 class PcubePlusMsg():
 
-    def __init__(self,title,content,token,dow,h,m):
+    def __init__(self,title,content,token,dow,h):
         self.title = title
         self.msg = content
         self.regis = token
         self.hour = h
-        self.minute = m
         self.day_of_week = dow
         self.is_multi = False
 
