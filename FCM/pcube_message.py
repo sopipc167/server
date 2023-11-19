@@ -1,6 +1,5 @@
 from firebase_admin.messaging import Message,Notification
-from apscheduler.schedulers.background import BackgroundScheduler
-sched = BackgroundScheduler(daemon = True)
+from utils.Scheduler import PCubeScheduler
 class PcubePlusMsg():
 
     def __init__(self,title,content,token,dow,h):
@@ -16,8 +15,9 @@ class PcubePlusMsg():
         cls.is_multi = True
         return cls(title,content,topic)
     def set_schedule(self):
-        sched.scheduled_job('cron', hour=self.hour, minute=self.minute, id='test_2')
-    @set_schedule
+        PCubeScheduler.sched.scheduled_job("cron",hour=self.hour,minute=self.minute)
+
+    @set_schedule()
     async def send_msg(self):
         if self.is_multi:
             msg = Message(
