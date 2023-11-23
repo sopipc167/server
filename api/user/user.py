@@ -113,7 +113,7 @@ class UserProjectAPI(Resource):
                     project_list[idx]['end_date'] = project['end_date'].strftime('%Y-%m-%d')
 
                 # platform을 리스트로 변환
-                project_list[idx]['platform'] = list(project['platform'].split(',')) if project['platform'] else []
+                project_list[idx]['platform'] = project['platform'].split(',') if project['platform'] else []
 
                 # index를 Boolean 값으로 변경
                 project_list[idx]['is_finding_member'] = True if project['is_finding_member'] else False
