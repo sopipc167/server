@@ -43,6 +43,9 @@ class ProjectListAPI(Resource):
                 if project['end_date']:
                     project_list[idx]['end_date'] = project['end_date'].strftime('%Y-%m-%d')
 
+                # platform을 리스트로 변환
+                project_list[idx]['platform'] = list(project['platform'].split(',')) if project['platform'] else []
+
                 # index를 Boolean 값으로 변경
                 project_list[idx]['is_finding_member'] = True if project['is_finding_member'] else False
                 project_list[idx]['is_able_inquiry'] = True if project['is_able_inquiry'] else False

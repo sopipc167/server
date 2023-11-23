@@ -343,15 +343,15 @@ class UserDTO:
 class ProjectDTO:
     api = Namespace('project', description='프로젝트 참여 내역')
 
-    model_project = api.model('model_user_project', {
+    model_project = api.model('model_project', {
         'id': fields.Integer(description='프로젝트 ID', example=1),
         'name': fields.String(description='프로젝트 명', example='PCubePlus'),
-        'type': fields.String(description='종류', enum=['메인 프로젝트', '꼬꼬마 프로젝트']),
+        'type': nullable(fields.String)(description='종류', enum=['메인 프로젝트', '꼬꼬마 프로젝트'], example='메인 프로젝트 (nullable)'),
         'status': fields.String(desciption='상태', enum=['완료', '진행 중', '시작 전']),
-        'start_date': fields.String(desciption='시작일', example='2023-01-01'),
-        'end_date': nullable(fields.String)(desciption='종료일'),
-        'graphic': fields.String(desciption='그래픽', example='2D'),
-        'platform': fields.String(desciption='플랫폼', example='PC'),
+        'start_date': nullable(fields.String)(desciption='시작일', example='2023-01-01 (nullable)'),
+        'end_date': nullable(fields.String)(desciption='종료일', example='2023-01-01 (nullable)'),
+        'graphic': nullable(fields.String)(desciption='그래픽', example='2D (nullable)'),
+        'platform': fields.List(fields.String(desciption='플랫폼'), example= ['PC', 'Mobile']),
         'is_finding_member': fields.Boolean(desciption='멤버 모집 여부', example=False),
         'is_able_inquiry': fields.Boolean(description='질의 가능 여부', example=True)
     })
