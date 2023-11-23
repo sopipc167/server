@@ -105,6 +105,7 @@ class AttendanceUserListAPI(Resource):
             # index 및 time을 문자열로 변환
             for idx, user in enumerate(user_list):
                 user_list[idx]['part_index'] = convert_to_string(UserEnum.PART, user['part_index'])
+                user_list[idx]['part'] = user.pop('part_index')
                 user_list[idx]['rest_type'] = convert_to_string(UserEnum.REST_TYPE, user['rest_type'])
                 user_list[idx]['state'] = convert_to_string(AttendanceEnum.CATEGORY, user['state'])
                 user_list[idx]['first_auth_time'] = str(user['first_auth_time'])
