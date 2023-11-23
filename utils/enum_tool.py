@@ -44,3 +44,9 @@ class SeminarEnum:
 class WarningEnum:
     # 경고 종류
     CATEGORY = {-2: '경고 차감', -1: '주의 차감', 1: '주의 부여', 2: '경고 부여', 0: '경고 초기화'}
+
+class ProjectEnum:
+    # 프로젝트 타입
+    TYPE = {0: '메인 프로젝트', 1: '꼬꼬마 프로젝트'}
+    # 현재 상태
+    STATUS = {0: '완료', 1: '진행 중', 2: '시작 전'}

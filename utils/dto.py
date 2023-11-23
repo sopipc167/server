@@ -302,3 +302,40 @@ class SeminarDTO:
     seminar_response_message = api.model('seminar_reponse_message', {
         'message': fields.String(description='결과 메시지', example="결과 메시지 입니다 :)")
     })
+
+class UserDTO:
+    api = Namespace('user', description='내 정보')
+
+    model_user_profile = api.model('model_user_profile', {
+        'name': fields.String(description='제목', example='홍길동'),
+        'level': fields.String(description='출석 상태', enum=['탈퇴자', '정회원', '수습회원', '명예회원', '수습회원(휴학)', '졸업생']),
+        'grade': fields.Integer(desciption='학년', example=2),
+        'part_index': fields.String(description='소속 파트', enum=['디자인', '아트', '프로그래밍']),
+        'rest_type': fields.String(description='활동 상태', enum=['활동', '일반휴학', '군휴학']),
+        'profile_image': nullable(fields.String)(description='프로필 이미지')
+    })
+
+    model_user_warning = api.model('model_user_warning', {
+        'total_warning': fields.Float(description='누적 경고 횟수', example=0.5)
+    })
+
+    model_user_project = api.model('model_user_project', {
+        'id': fields.Integer(description='프로젝트 ID', example=1),
+        'name': fields.String(description='프로젝트 명', example='PCubePlus'),
+        'type': fields.String(description='종류', enum=['메인 프로젝트', '꼬꼬마 프로젝트']),
+        'status': fields.String(desciption='상태', enum=['완료', '진행 중', '시작 전']),
+        'start_date': fields.String(desciption='시작일', example='2023-01-01'),
+        'end_date': nullable(fields.String)(desciption='종료일'),
+        'graphic': fields.String(desciption='그래픽', example='2D'),
+        'platform': fields.String(desciption='플랫폼', example='PC'),
+        'is_finding_member': fields.Boolean(desciption='멤버 모집 여부', example=False),
+        'is_able_inquiry': fields.Boolean(description='질의 가능 여부', example=True)
+    })
+
+    model_user_project_list = api.model('model_user_project_list', {
+        'project_list': fields.List(fields.Nested(model_user_project), description='회원 프로젝트 목록')
+    })
+
+    response_message = api.model('response_message', {
+        'message': fields.String(description='결과 메시지', example="결과 메시지")
+    })
