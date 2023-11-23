@@ -310,7 +310,7 @@ class UserDTO:
         'name': fields.String(description='제목', example='홍길동'),
         'level': fields.String(description='출석 상태', enum=['탈퇴자', '정회원', '수습회원', '명예회원', '수습회원(휴학)', '졸업생']),
         'grade': fields.Integer(desciption='학년', example=2),
-        'part_index': fields.String(description='소속 파트', enum=['디자인', '아트', '프로그래밍']),
+        'part': fields.String(description='소속 파트', enum=['디자인', '아트', '프로그래밍']),
         'rest_type': fields.String(description='활동 상태', enum=['활동', '일반휴학', '군휴학']),
         'profile_image': nullable(fields.String)(description='프로필 이미지')
     })
