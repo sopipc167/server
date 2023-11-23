@@ -73,7 +73,7 @@ class MembershipFeeCheckAPI(Resource):
             else:
                 user_payment_list[idx]['category'] = convert_to_string(AccountingEnum.PAYMENT_STATE, user_payment['category'])
 
-            user_payment_list[idx]['level'] = convert_to_string(UserEnum.RANK, user_payment['level'])
+            user_payment_list[idx]['level'] = convert_to_string(UserEnum.LEVEL, user_payment['level'])
 
         # 월별 회비 납부 내역 만들기
         monthly_payment_list = []
