@@ -78,7 +78,7 @@ class UserWarningAPI(Resource):
     
 @user.route('/project')
 class UserProjectAPI(Resource):
-    @user.response(200, 'OK', UserDTO.model_user_project_list)
+    @user.response(200, 'OK', [UserDTO.model_user_project])
     @user.response(400, 'Bad Request', UserDTO.response_message)
     @user.doc(security='apiKey')
     @jwt_required()
@@ -98,7 +98,7 @@ class UserProjectAPI(Resource):
             database.close()
 
         if not project_list: # 프로젝트를 한 적이 없을 때 처리
-            return {'project_list': []}, 200
+            return [], 200
         else:
             for idx, project in enumerate(project_list):
                 # index를 문자열로 변환
@@ -115,4 +115,4 @@ class UserProjectAPI(Resource):
                 project_list[idx]['is_finding_member'] = True if project['is_finding_member'] else False
                 project_list[idx]['is_able_inquiry'] = True if project['is_able_inquiry'] else False
 
-            return {'project_list': project_list}, 200
+            return project_list, 200
