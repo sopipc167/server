@@ -40,6 +40,7 @@ class UserProfileAPI(Resource):
             # index를 문자열로 변경
             user['level'] = convert_to_string(UserEnum.LEVEL, user['level'])
             user['part_index'] = convert_to_string(UserEnum.PART, user['part_index'])
+            user['part'] = user.pop('part_index')
             user['rest_type'] = convert_to_string(UserEnum.REST_TYPE, user['rest_type'])
             
             return user, 200
