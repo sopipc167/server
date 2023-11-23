@@ -90,7 +90,7 @@ class UserProjectAPI(Resource):
             # DB에서 user_id값에 맞는 프로젝트 목록 불러오기
             database = Database()
             sql = f"SELECT p.* FROM projects p JOIN project_members pm ON p.id = pm.project_id "\
-                f"WHERE pm.user_id = '{user_id}' ORDER BY p.start_date desc;"
+                f"WHERE pm.user_id = '{user_id}' ORDER BY p.start_date DESC;"
             project_list = database.execute_all(sql)
         except:
             return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
