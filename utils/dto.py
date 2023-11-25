@@ -226,7 +226,7 @@ class feedbackDTO:  # 피드백 DTO
         'message': '내용을 입력해주세요'
     })
     post_sucess = api.inherit('post_sucess', feedback_response, {
-        'message': "피드백이 성공적으로 작성되었어요"
+        'message': "피드백이 성공적으로 작성되었어요"})
 
 class WarningDTO:
     api = Namespace('warning', description='회원 경고 기능')

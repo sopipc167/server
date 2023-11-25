@@ -4,12 +4,10 @@ from database.database import Database
 from datetime import datetime, timedelta
 from utils.dto import adminProductDTO
 
-
 product = adminProductDTO.api
 _admin_product_all = adminProductDTO.admin_product_response_all
 _admin_product_internal  =adminProductDTO.internal_error
 _admin_product_not_found = adminProductDTO.no_product_find
-
 
 def date_change_to_string(list, item):
     for idx, lst in enumerate(list):

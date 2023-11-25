@@ -7,9 +7,9 @@ feedback = feedbackDTO.api
 @feedback.route("/<int:feedback_code>")
 @feedback.response(200, 'Success',feedbackDTO.feedback_response_search)
 @feedback.response(200, 'Post Success',feedbackDTO.post_sucess)
-@feedback.response(400,'Invaild Feedback',feedbackDTO.invalid_feedback)
-@feedback.response(400,'No Title',feedbackDTO.no_title)
-@feedback.response(400,'No contents',feedbackDTO.no_contents)
+@feedback.response(400, 'Invaild Feedback',feedbackDTO.invalid_feedback)
+@feedback.response(400, 'No Title',feedbackDTO.no_title)
+@feedback.response(400, 'No contents',feedbackDTO.no_contents)
 class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
     def get(self, feedback_code):
         # Body 데이터 얻어오기 (user_id)
@@ -24,7 +24,7 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         # feedback이 하나도 없을 때의 처리
         if not feedback:
             database.close()
-            return {"message":"존재하지 않는 피드백입니다"}, 400
+            return {"message" : "존재하지 않는 피드백입니다"}, 400
         else:
             if feedback['is_anony'] == 1:  # 익명 처리
                 feedback['user_id'] = 0
@@ -45,11 +45,11 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         feedback_code = count
 
         # 만약 작성항목에 널값이 있는지 확인
-        if (not title): # 피드백 제목을 작성하지 않을때 예외 발생
-            return {"message":"제목을 입력해주세요"}, 400
-        elif (not content): # 피드백 내용을 작성하지 않을때 예외 발생
-            return {"message":"피드백 내용을 입력해주세요"}, 400
-        else:# 피드백을 정상적으로 작성하고
+        if not title: # 피드백 제목을 작성하지 않을때 예외 발생
+            return {"message" : "제목을 입력해주세요"}, 400
+        elif not content: # 피드백 내용을 작성하지 않을때 예외 발생
+            return {"message" : "피드백 내용을 입력해주세요"}, 400
+        else: # 피드백을 정상적으로 작성하고
             sql = f"INSERT INTO feedback(code, user_id, is_anony, title, content, is_answered) " \
                   f"VALUES('{feedback_code}', '{user_id}' ,{is_anony}, '{title}', '{content}', 0);"
             database.execute(sql)
@@ -61,7 +61,7 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
 
 @feedback.route("/list")
 @feedback.response(200, 'Success',feedbackDTO.feedback_response_all)
-@feedback.response(200,'No feedback found',feedbackDTO.no_feedback_found)
+@feedback.response(200, 'No feedback found',feedbackDTO.no_feedback_found)
 class FeedbackListGetAPI(Resource):
     def get(self):
         body_data = request.get_json()
@@ -72,7 +72,6 @@ class FeedbackListGetAPI(Resource):
         sql = f"SELECT * FROM feedback;"
         feedback_list = database.execute_all(sql)
         database.close()
-
 
         # feedback이 하나도 없을 때의 처리
         if not feedback_list:
@@ -85,10 +84,10 @@ class FeedbackListGetAPI(Resource):
 
 @feedback.route("/answer/<int:feedback_code>")
 @feedback.response(200, 'Post Success',feedbackDTO.post_sucess)
-@feedback.response(401,'Access Denied',feedbackDTO.not_qualified)
-@feedback.response(400,'Invaild Feedback',feedbackDTO.invalid_feedback)
-@feedback.response(400,'No contents',feedbackDTO.no_contents)
-@feedback.response(400,'already answered',feedbackDTO.already_answered)
+@feedback.response(401, 'Access Denied',feedbackDTO.not_qualified)
+@feedback.response(400, 'Invaild Feedback',feedbackDTO.invalid_feedback)
+@feedback.response(400, 'No contents',feedbackDTO.no_contents)
+@feedback.response(400, 'already answered',feedbackDTO.already_answered)
 class FeedbackAnswerAPI(Resource):
     def post(self, feedback_code):
 
