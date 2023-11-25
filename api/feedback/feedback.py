@@ -24,7 +24,7 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         # feedback이 하나도 없을 때의 처리
         if not feedback:
             database.close()
-            return {"message" : "존재하지 않는 피드백입니다"}, 400
+            return {'message': '존재하지 않는 피드백입니다'}, 400
         else:
             if feedback['is_anony'] == 1:  # 익명 처리
                 feedback['user_id'] = 0
@@ -46,9 +46,9 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
 
         # 만약 작성항목에 널값이 있는지 확인
         if not title: # 피드백 제목을 작성하지 않을때 예외 발생
-            return {"message" : "제목을 입력해주세요"}, 400
+            return {'message': '제목을 입력해주세요'}, 400
         elif not content: # 피드백 내용을 작성하지 않을때 예외 발생
-            return {"message" : "피드백 내용을 입력해주세요"}, 400
+            return {'message': '피드백 내용을 입력해주세요'}, 400
         else: # 피드백을 정상적으로 작성하고
             sql = f"INSERT INTO feedback(code, user_id, is_anony, title, content, is_answered) " \
                   f"VALUES('{feedback_code}', '{user_id}' ,{is_anony}, '{title}', '{content}', 0);"
@@ -75,7 +75,7 @@ class FeedbackListGetAPI(Resource):
 
         # feedback이 하나도 없을 때의 처리
         if not feedback_list:
-            return {'message':'생성된 피드백이 없어요'}, 200
+            return {'message': '생성된 피드백이 없어요'}, 200
         else:
             for idx, value in enumerate(feedback_list):
                 if feedback_list[idx]['is_anony'] == 1:  # 익명처리
@@ -90,7 +90,6 @@ class FeedbackListGetAPI(Resource):
 @feedback.response(400, 'already answered',feedbackDTO.already_answered)
 class FeedbackAnswerAPI(Resource):
     def post(self, feedback_code):
-
         # Body 데이터 얻어오기
         body_data = request.get_json()
         answer_id = body_data['user_id']
@@ -123,7 +122,7 @@ class FeedbackAnswerAPI(Resource):
         # answer 작성
         else:
             if not answer:
-                return {"message":"답변 내용을 작성해주세요"}, 400
+                return {'message': '답변 내용을 작성해주세요'}, 400
             sql = (f"INSERT INTO feedback_answer(code, user_id, answer, answer_id) " \
                    f"VALUES({feedback_code},'{user_id}' ,'{answer}', {answer_id});")
             database.execute(sql)
@@ -134,4 +133,4 @@ class FeedbackAnswerAPI(Resource):
             database.commit()
 
             database.close()
-            return {"message:피드백이 성공적으로 작성되었어요"}, 200
+            return {'message': '피드백이 성공적으로 작성되었어요'}, 200
