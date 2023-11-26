@@ -1,15 +1,15 @@
 from flask import request
 from flask_restx import Resource, Namespace, fields
 from database.database import Database
-from utils.dto import feedbackDTO
+from utils.dto import FeedbackDTO
 
-feedback = feedbackDTO.api
+feedback = FeedbackDTO.api
 @feedback.route("/<int:feedback_code>")
-@feedback.response(200, 'Success',feedbackDTO.feedback_response_search)
-@feedback.response(200, 'Post Success',feedbackDTO.post_sucess)
-@feedback.response(400, 'Invaild Feedback',feedbackDTO.invalid_feedback)
-@feedback.response(400, 'No Title',feedbackDTO.no_title)
-@feedback.response(400, 'No contents',feedbackDTO.no_contents)
+@feedback.response(200, 'Success', FeedbackDTO.feedback_response_search)
+@feedback.response(200, 'Post Success', FeedbackDTO.post_sucess)
+@feedback.response(400, 'Invaild Feedback',FeedbackDTO.invalid_feedback)
+@feedback.response(400, 'No Title', FeedbackDTO.no_title)
+@feedback.response(400, 'No contents', FeedbackDTO.no_contents)
 class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
     def get(self, feedback_code):
         # Body 데이터 얻어오기 (user_id)
@@ -40,7 +40,7 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         database = Database()
 
         # 피드백 개수를 세서 id를 할당함
-        sql = f"SELECT COUNT(code) from feedback;"
+        sql = f"SELECT COUNT(code) FROM feedback;"
         count = database.execute(sql)
         feedback_code = count
 
@@ -58,10 +58,9 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
             database.close()
             return body_data, 200
 
-
 @feedback.route("/list")
-@feedback.response(200, 'Success',feedbackDTO.feedback_response_all)
-@feedback.response(200, 'No feedback found',feedbackDTO.no_feedback_found)
+@feedback.response(200, 'Success', FeedbackDTO.feedback_response_all)
+@feedback.response(200, 'No feedback found', FeedbackDTO.no_feedback_found)
 class FeedbackListGetAPI(Resource):
     def get(self):
         body_data = request.get_json()
@@ -83,11 +82,11 @@ class FeedbackListGetAPI(Resource):
                 return feedback_list, 200
 
 @feedback.route("/answer/<int:feedback_code>")
-@feedback.response(200, 'Post Success',feedbackDTO.post_sucess)
-@feedback.response(401, 'Access Denied',feedbackDTO.not_qualified)
-@feedback.response(400, 'Invaild Feedback',feedbackDTO.invalid_feedback)
-@feedback.response(400, 'No contents',feedbackDTO.no_contents)
-@feedback.response(400, 'already answered',feedbackDTO.already_answered)
+@feedback.response(200, 'Post Success', FeedbackDTO.post_sucess)
+@feedback.response(401, 'Access Denied', FeedbackDTO.not_qualified)
+@feedback.response(400, 'Invaild Feedback', FeedbackDTO.invalid_feedback)
+@feedback.response(400, 'No contents', FeedbackDTO.no_contents)
+@feedback.response(400, 'already answered', FeedbackDTO.already_answered)
 class FeedbackAnswerAPI(Resource):
     def post(self, feedback_code):
         # Body 데이터 얻어오기

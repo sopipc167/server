@@ -155,7 +155,7 @@ class AdminAttendanceDTO:
         'attendance_id', type=int, help='출석 ID'
     )
 
-class adminProductDTO:  # 임원진 물품 DTO
+class AdminProductDTO:  # 임원진 물품 DTO
     api = Namespace('product', description='임원진 물품관리')
     admin_product_response = api.model('admin_product_response', {  # 기본적으로 응답의 상태를 메세지로 출력하는 모델
         'message': fields.String(description='응답 결과')
@@ -185,7 +185,7 @@ class adminProductDTO:  # 임원진 물품 DTO
         'message': fields.String("내부 서버에 문제가 발생했어요.")
     })
 
-class feedbackDTO:  # 피드백 DTO
+class FeedbackDTO:  # 피드백 DTO
     api = Namespace('feedback', description='임원진 물품관리')
     feedback_response = api.model('feedback_response', {
         'message': fields.String(description='응답결과')

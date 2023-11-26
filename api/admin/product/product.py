@@ -2,12 +2,12 @@ from flask_restx import Resource, Namespace, fields
 from flask import jsonify
 from database.database import Database
 from datetime import datetime, timedelta
-from utils.dto import adminProductDTO
+from utils.dto import AdminProductDTO
 
-product = adminProductDTO.api
-_admin_product_all = adminProductDTO.admin_product_response_all
-_admin_product_internal  =adminProductDTO.internal_error
-_admin_product_not_found = adminProductDTO.no_product_find
+product = AdminProductDTO.api
+_admin_product_all = AdminProductDTO.admin_product_response_all
+_admin_product_internal  =AdminProductDTO.internal_error
+_admin_product_not_found = AdminProductDTO.no_product_find
 
 def date_change_to_string(list, item):
     for idx, lst in enumerate(list):
@@ -15,9 +15,9 @@ def date_change_to_string(list, item):
             list[idx][item] = lst[item].strftime('%Y-%m-%d')
 
 @product.route("/list")
-@product.response(200,'Success',_admin_product_all)
-@product.response(400,'Bad Request',_admin_product_not_found)
-@product.response(500,'Internal Server Error',_admin_product_internal)
+@product.response(200, 'Success', _admin_product_all)
+@product.response(400, 'Bad Request', _admin_product_not_found)
+@product.response(500, 'Internal Server Error', _admin_product_internal)
 class ProductList(Resource):
     def get(self):
         # 전체 물품의 목록을 가져옵니다. 대여중인 물품은 대여 정보도 같이 가져옵니다.
@@ -37,9 +37,9 @@ class ProductList(Resource):
         else:
             return product_list, 200
 
-@product.response(200,'Success',_admin_product_all)
-@product.response(400,'Bad Request',_admin_product_not_found)
-@product.response(500,'Internal Server Error',_admin_product_internal)
+@product.response(200, 'Success', _admin_product_all)
+@product.response(400, 'Bad Request', _admin_product_not_found)
+@product.response(500, 'Internal Server Error', _admin_product_internal)
 @product.route("/list/<string:product_name>")
 class SearchProductList(Resource):
     def get(self, product_name):
