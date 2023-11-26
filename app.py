@@ -43,7 +43,7 @@ api.add_namespace(seminar, '/seminar')
 api.add_namespace(warning, '/warning')
 api.add_namespace(accounting, '/accounting')
 api.add_namespace(home, '/home')
-api.add_namespace(feedback,'/feedback')
+api.add_namespace(feedback, '/feedback')
 api.add_namespace(attendance, '/attendance')
 
 app.register_blueprint(admin)

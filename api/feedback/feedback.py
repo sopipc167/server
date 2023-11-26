@@ -7,7 +7,7 @@ feedback = FeedbackDTO.api
 @feedback.route("/<int:feedback_code>")
 @feedback.response(200, 'Success', FeedbackDTO.feedback_response_search)
 @feedback.response(200, 'Post Success', FeedbackDTO.post_sucess)
-@feedback.response(400, 'Invaild Feedback',FeedbackDTO.invalid_feedback)
+@feedback.response(400, 'Invaild Feedback', FeedbackDTO.invalid_feedback)
 @feedback.response(400, 'No Title', FeedbackDTO.no_title)
 @feedback.response(400, 'No contents', FeedbackDTO.no_contents)
 class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
@@ -121,8 +121,8 @@ class FeedbackAnswerAPI(Resource):
         else:
             if not answer:
                 return {'message': '답변 내용을 작성해주세요'}, 400
-            sql = (f"INSERT INTO feedback_answer(code, user_id, answer, answer_id) " \
-                   f"VALUES({feedback_code},'{user_id}' ,'{answer}', {answer_id});")
+            sql = f"INSERT INTO feedback_answer(code, user_id, answer, answer_id) " \
+                   f"VALUES({feedback_code},'{user_id}' ,'{answer}', {answer_id});"
             database.execute(sql)
             # is_answered update
             sql = f"UPDATE feedback SET is_answered = 1 " \
