@@ -3,113 +3,120 @@ from flask import Flask, redirect, request
 from flask_restx import Resource, Api, Namespace
 from database.database import Database
 from datetime import datetime
+from utils.dto import UserDTO
+from utils.enum_tool import convert_to_string, convert_to_index, UserEnum, WarningEnum, ProjectEnum
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.aes_cipher import AESCipher
 
-user = Namespace('user')
+user = UserDTO.api
 
 @user.route("/profile")
-class UserProfile(Resource):
+class UserProfileAPI(Resource):
+    @user.response(200, 'OK', UserDTO.model_user_profile)
+    @user.response(400, 'Bad Request', UserDTO.response_message)
+    @user.doc(security='apiKey')
+    @jwt_required()
     def get(self):
-        database = Database()
-        # 유저 테이블에서 해당 유저에 대한 정보 조회
-        # 추후에는 토큰 등을 받아서 어떤 사용자인지 인식하고, 해당 사용자에 대한 정보를 뿌려줄 예정
-        sql = f"SELECT * FROM users where id = {1};"    # 추후에는 1이 아닌 각 유저에 대한 식별자가 들어갈 예정
-        user_data = database.execute_one(sql)
+        user_id = get_jwt_identity()
 
-        if not user_data:
+        # DB 예외 처리
+        try:
+            # DB에서 회원 정보 조회
+            database = Database()
+            sql = f"SELECT name, level, grade, part_index, rest_type, profile_image FROM users WHERE id = '{user_id}';"
+            user = database.execute_one(sql)
+        except:
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
+        finally:
             database.close()
+
+        if not user: # 회원 정보가 조회되지 않을 시 처리
             return { 'message': '회원 정보를 찾지 못했어요 :(' }, 400
-        
-        # 동아리에 가입되어 있는 여부를 Boolean 값으로 변경
-        user_data['is_signed'] = True if user_data['is_signed'] else False
+        else:
+            # 회원 이름 복호화
+            crypt = AESCipher()
+            user['name'] = crypt.decrypt(user['name'])
 
-        # 소속된 프로젝트(들)의 식별자 목록 조회
-        sql = f"SELECT project_id FROM project_members where user_id = {user_data['id']};"
-        project_id_list = database.execute_all(sql)
-
-        # 소속된 프로젝트(들)의 상세 정보 조회
-        project_data_list = []
-        for data in project_id_list:
-            id = data['project_id']
-            sql = f"SELECT * FROM projects where id = {id};"
-            project_data = database.execute_one(sql)
-
-            # Date를 String으로 형 변환함
-            project_data['start_date'] = project_data['start_date'].strftime('%Y-%m-%d')
-            project_data['end_date'] = project_data['end_date'].strftime('%Y-%m-%d')
-
-            # 플랫폼 정보를 List<String>의 형식으로 변환
-            platform_list = project_data['platform'].split(',')
-            project_data['platform'] = platform_list
-
-            # 팀원 모집 여부와 문의 가능 여부를 Boolean 값으로 변경
-            project_data['is_finding_member'] = True if project_data['is_finding_member'] else False
-            project_data['is_able_inquiry'] = True if project_data['is_able_inquiry'] else False
-
-            # PM 초기화
-            project_data['pm'] = None
-
-            # 소속된 프로젝트(들)의 멤버 식별자 목록 조회
-            sql = f"SELECT * FROM project_members where project_id = {id};"
-            project_members = database.execute_all(sql)
+            # index를 문자열로 변경
+            user['level'] = convert_to_string(UserEnum.LEVEL, user['level'])
+            user['part_index'] = convert_to_string(UserEnum.PART, user['part_index'])
+            user['part'] = user.pop('part_index')
+            user['rest_type'] = convert_to_string(UserEnum.REST_TYPE, user['rest_type'])
             
-            # 프로젝트 팀원 별 상세 정보를 불러오고 members와 pm에 각각 할당
-            members = []
-            for member in project_members:
-                # 유저 상세 정보 조회
-                id = member['user_id']
-                sql = f"SELECT * FROM users where id = {id};"
-                member_data = database.execute_one(sql)
-
-                # 동아리에 가입되어 있는 여부를 Boolean 값으로 변경
-                member_data['is_signed'] = True if member_data['is_signed'] else False
-
-                # PM이면 pm에 따로 추가, PM이 아니면 members에 추가
-                if member['is_pm']:
-                    project_data['pm'] = member_data
-                else:
-                    members.append(member_data)
-            project_data['members'] = members
-            
-            # 얻은 프로젝트 정보를 리스트에 추가
-            project_data_list.append(project_data)
-        
-        user_data['projects'] = project_data_list
-        database.close()
-
-        return user_data, 200
-
-@user.route("/notification")
-class UserNotification(Resource):
+            return user, 200
+    
+@user.route('/warning')
+class UserWarningAPI(Resource):
+    @user.response(200, 'OK', UserDTO.model_user_warning)
+    @user.response(400, 'Bad Request', UserDTO.response_message)
+    @user.doc(security='apiKey')
+    @jwt_required()
     def get(self):
-        data = [
-            {
-                "id": 1,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            },
-            {
-                "id": 2,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            },
-            {
-                "id": 1,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            },
-            {
-                "id": 1,
-                "type": 0,
-                "date": "2023-01-01 10:00:00",
-                "description": "당일 10시에 청소가 시작됩니다.",
-                "name": "청소 알림",
-            }
-        ]
+        user_id = get_jwt_identity()
 
-        return data
+        # DB 예외 처리
+        try:
+            # DB에서 user_id값에 맞는 경고 목록 불러오기
+            database = Database()
+            sql = f"SELECT * FROM warnings WHERE user_id = '{user_id}' ORDER BY date;"
+            warning_list = database.execute_all(sql)
+        except:
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
+        finally:
+            database.close()
+
+        # 누적 경고 횟수 계산
+        total_warning = 0
+        for warning in warning_list:
+            if warning['category'] == 0:
+                total_warning = 0
+            else:
+                total_warning += warning['category']
+                total_warning = max(total_warning, 0)
+
+        # 정수로 보정되어 있던 값을 실제 횟수로 변환하여 반환
+        return {'total_warning': total_warning / 2.0}, 200
+    
+@user.route('/project')
+class UserProjectAPI(Resource):
+    @user.response(200, 'OK', [UserDTO.model_user_project])
+    @user.response(400, 'Bad Request', UserDTO.response_message)
+    @user.doc(security='apiKey')
+    @jwt_required()
+    def get(self):
+        user_id = get_jwt_identity()
+
+        # DB 예외 처리
+        try:
+            # DB에서 user_id값에 맞는 프로젝트 목록 불러오기
+            database = Database()
+            sql = f"SELECT p.* FROM projects p JOIN project_members pm ON p.id = pm.project_id "\
+                f"WHERE pm.user_id = '{user_id}' ORDER BY p.start_date DESC;"
+            project_list = database.execute_all(sql)
+        except:
+            return {'message': '서버에 오류가 발생했어요 :(\n지속적으로 발생하면 문의주세요!'}, 400
+        finally:
+            database.close()
+
+        if not project_list: # 프로젝트를 한 적이 없을 때 처리
+            return [], 200
+        else:
+            for idx, project in enumerate(project_list):
+                # index를 문자열로 변환
+                project_list[idx]['type'] = convert_to_string(ProjectEnum.TYPE, project['type'])
+                project_list[idx]['status'] = convert_to_string(ProjectEnum.STATUS, project['status'])
+
+                # date를 문자열로 변환
+                if project['start_date']:
+                    project_list[idx]['start_date'] = project['start_date'].strftime('%Y-%m-%d')
+                if project['end_date']:
+                    project_list[idx]['end_date'] = project['end_date'].strftime('%Y-%m-%d')
+
+                # platform을 리스트로 변환
+                project_list[idx]['platform'] = project['platform'].split(',') if project['platform'] else []
+
+                # index를 Boolean 값으로 변경
+                project_list[idx]['is_finding_member'] = True if project['is_finding_member'] else False
+                project_list[idx]['is_able_inquiry'] = True if project['is_able_inquiry'] else False
+
+            return project_list, 200

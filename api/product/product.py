@@ -1,12 +1,18 @@
-from flask import Flask, request, make_response, jsonify
 from flask_restx import Resource, Namespace
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from database.database import Database
 from datetime import datetime, timedelta
+from utils.aes_cipher import AESCipher
 
 product = Namespace('product')
+crypt = AESCipher()
 
 @product.route("/<string:product_code>")
+@product.response(200, 'Success')
+@product.response(401, 'Unauthorized')
 class Product(Resource):
+    @jwt_required()
+    @product.doc(security='apiKey')
     def get(self, product_code):
         database = Database()
         sql = f"SELECT * FROM products WHERE code = '{product_code}';"
@@ -14,13 +20,13 @@ class Product(Resource):
         
         product['status'] = { 'value': product['status'], 'rent_user': None }
             
-        sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day is null;"
+        sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day IS NULL;"
         rent_log = database.execute_one(sql)
             
         if rent_log:
-            sql = f"SELECT name FROM users WHERE id = {rent_log['user_id']};"
+            sql = f"SELECT name FROM users WHERE id = '{rent_log['user_id']}';"
             rent_user = database.execute_one(sql)
-            product['status']['rent_user'] = rent_user['name']
+            product['status']['rent_user'] = crypt.decrypt(rent_user['name'])
         
         database.close()
         
@@ -31,8 +37,12 @@ class Product(Resource):
             return product, 200
 
 @product.route("/list")
+@product.response(200, 'Success')
+@product.response(401, 'Unauthorized')
 class ProductList(Resource):
-    def get(self):
+    @jwt_required()
+    @product.doc(security='apiKey')
+    def get(self):        
         database = Database()
         sql = f"SELECT * FROM products;"
         product_list = database.execute_all(sql)
@@ -40,13 +50,13 @@ class ProductList(Resource):
         for idx, product in enumerate(product_list):
             product_list[idx]['status'] = { 'value': product['status'], 'rent_user': None }
             
-            sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day is null;"
+            sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day IS NULL;"
             rent_log = database.execute_one(sql)
             
             if rent_log:
-                sql = f"SELECT name FROM users WHERE id = {rent_log['user_id']};"
+                sql = f"SELECT name FROM users WHERE id = '{rent_log['user_id']}';"
                 rent_user = database.execute_one(sql)
-                product_list[idx]['status']['rent_user'] = rent_user['name']
+                product_list[idx]['status']['rent_user'] = crypt.decrypt(rent_user['name'])
         
         database.close()
         
@@ -57,7 +67,11 @@ class ProductList(Resource):
             return product_list, 200
 
 @product.route("/list/<string:product_name>")
+@product.response(200, 'Success')
+@product.response(401, 'Unauthorized')
 class SpecificProductList(Resource):
+    @jwt_required()
+    @product.doc(security='apiKey')
     def get(self, product_name):
         database = Database()
         sql = f"SELECT * FROM products WHERE name LIKE '%%{product_name}%%'"
@@ -66,13 +80,13 @@ class SpecificProductList(Resource):
         for idx, product in enumerate(product_list):
             product_list[idx]['status'] = { 'value': product['status'], 'rent_user': None }
             
-            sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day is null;"
+            sql = f"SELECT * FROM rent_list WHERE product_code = '{product['code']}' and return_day IS NULL;"
             rent_log = database.execute_one(sql)
             
             if rent_log:
-                sql = f"SELECT name FROM users WHERE id = {rent_log['user_id']};"
+                sql = f"SELECT name FROM users WHERE id = '{rent_log['user_id']}';"
                 rent_user = database.execute_one(sql)
-                product_list[idx]['status']['rent_user'] = rent_user['name']
+                product_list[idx]['status']['rent_user'] = crypt.decrypt(rent_user['name'])
                 
         database.close()
         
@@ -83,12 +97,15 @@ class SpecificProductList(Resource):
             return product_list, 200
 
 @product.route("/rent/<string:product_code>")
+@product.response(200, 'Success')
+@product.response(401, 'Unauthorized')
 class RentProduct(Resource):
+    @jwt_required()
     def post(self, product_code):
+        user_id = get_jwt_identity()
         database = Database()
         sql = f"SELECT * FROM products WHERE code = '{product_code}';"
         product = database.execute_one(sql)
-        user_id_temp = 2
         
         if product['is_available']: # 물품 대여에 대한 로직
             # 물품 정보를 대여중인 상태로 업데이트
@@ -102,7 +119,7 @@ class RentProduct(Resource):
             rent_day = now.date()
             deadline = rent_day + timedelta(days=30)
             sql = f"INSERT INTO rent_list(product_code, user_id, deadline, rent_day, return_day) "\
-                f"VALUES('{product_code}', {user_id_temp}, '{deadline}', '{rent_day}', NULL);"
+                f"VALUES('{product_code}', '{user_id}', '{deadline}', '{rent_day}', NULL);"
             database.execute(sql)
             database.commit()
 
@@ -111,14 +128,14 @@ class RentProduct(Resource):
             product_data = database.execute_one(sql)
 
             # 빌린 사람 이름 조회
-            sql = f"SELECT name FROM users WHERE id = {user_id_temp}"
+            sql = f"SELECT name FROM users WHERE id = '{user_id}'"
             rent_user = database.execute_one(sql)
 
             # 디데이 계산
             d_day = (deadline - rent_day).days
 
             # 물품 상태 정보 추가
-            product_data['status'] = { 'value': status, 'rent_user': rent_user['name'] }
+            product_data['status'] = { 'value': status, 'rent_user': crypt.decrypt(rent_user['name']) }
 
             # 대여 정보에 물품 정보 모두 추가
             rent_data = { 'product': product_data }
@@ -146,21 +163,23 @@ class RentProduct(Resource):
             return message, 400
 
 @product.route("/return/<string:product_code>")
+@product.response(200, 'Success')
+@product.response(401, 'Unauthorized')
 class ReturnProduct(Resource):
+    @jwt_required()
+    @product.doc(security='apiKey')
     def put(self, product_code):
+        user_id = get_jwt_identity()
         database = Database()
         sql = f"SELECT * FROM products WHERE code = '{product_code}';"
         product = database.execute_one(sql)
-
-        # JWT 적용 전 임시 user_id 값
-        user_id = 2
 
         # 물품 반납에 대한 로직
         if not product['is_available']:
             if product['status'] == "대여중":
                 # 맞는 대여 내역이 있는지 검증 
                 sql = f"SELECT * FROM rent_list "\
-                    f"WHERE product_code = '{product_code}' and user_id = {user_id} and return_day is null;"
+                    f"WHERE product_code = '{product_code}' and user_id = '{user_id}' and return_day IS NULL;"
                 rent_data = database.execute_one(sql)
                 if not rent_data:
                     return { 'message': '데이터가 올바르지 않아요 :(\n지속적으로 발생 시 문의해주세요!' }, 500
@@ -170,7 +189,7 @@ class ReturnProduct(Resource):
                 return_day = now.date()
                 status = "대여 가능"
                 sql = f"UPDATE rent_list SET return_day = '{return_day}' "\
-                    f"WHERE product_code = '{product_code}' and user_id = {user_id} and return_day is null;"
+                    f"WHERE product_code = '{product_code}' and user_id = '{user_id}' and return_day IS NULL;"
                 database.execute(sql)
                 database.commit()
 
