@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials,messaging
 from pcube_message import PcubePlusMsg
 import configparser
-from utils.Scheduler import PCubeScheduler, Singleton
+from utils.scheduler import PCubeScheduler, Singleton
 from firebase_admin.messaging import Message,Notification
 
 config = configparser.ConfigParser()

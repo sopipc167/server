@@ -1,7 +1,6 @@
 from firebase_admin.messaging import Message,Notification
 class PcubePlusMsg(Notification):
     number=0
-
     def __init__(self, token, reserved, is_multi, **kwargs):
         PcubePlusMsg.number += 1
         self.title = kwargs['title']

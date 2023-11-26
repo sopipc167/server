@@ -82,13 +82,13 @@ class UserProfile(Resource):
 class UserNotification(Resource):
     def get(self):
         database = Database()
-        sql1 = f"select level from users where id={id}"
-        lev = database.execute_one(sql1)
+        sql = f"select level from users where id={id}"
+        lev = database.execute_one(sql)
         if lev ==1:
-            sql2 = f"select n.time, n.message, n.memo from notification as n where id = 0 or id = 1;"
+            sql = f"select n.time, n.message, n.memo from notification as n where id = 0 or id = 1;"
         elif lev ==2 or lev==4:
-            sql2 = f"select n.time, n.message, n.memo from notification as n where id = 0 or id = 2;"
+            sql = f"select n.time, n.message, n.memo from notification as n where id = 0 or id = 2;"
         else:
-            sql2 = f""
-        data =  database.execute_all(sql2)
-        return data
+            return {"message": "알림 내용이 없어요"}, 402
+        data = database.execute_all(sql)
+        return data, 200
