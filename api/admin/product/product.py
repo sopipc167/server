@@ -6,7 +6,7 @@ from utils.dto import AdminProductDTO
 
 product = AdminProductDTO.api
 _admin_product_all = AdminProductDTO.admin_product_response_all
-_admin_product_internal  =AdminProductDTO.internal_error
+_admin_product_internal = AdminProductDTO.internal_error
 _admin_product_not_found = AdminProductDTO.no_product_find
 
 def date_change_to_string(list, item):

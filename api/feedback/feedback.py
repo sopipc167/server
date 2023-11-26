@@ -41,8 +41,7 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
 
         # 피드백 개수를 세서 id를 할당함
         sql = f"SELECT COUNT(code) FROM feedback;"
-        count = database.execute(sql)
-        feedback_code = count
+        feedback_code = database.execute(sql)
 
         # 만약 작성항목에 널값이 있는지 확인
         if not title: # 피드백 제목을 작성하지 않을때 예외 발생
