@@ -37,17 +37,17 @@ class ProductList(Resource):
         else:
             return product_list, 200
 
+@product.route("/list/<string:product_name>")
 @product.response(200, 'Success', _admin_product_all)
 @product.response(400, 'Bad Request', _admin_product_not_found)
 @product.response(500, 'Internal Server Error', _admin_product_internal)
-@product.route("/list/<string:product_name>")
 class SearchProductList(Resource):
     def get(self, product_name):
         # 특정물품의 검색 결과를 가져옵니다. 대여중인 물품은 대여 정보도 같이 가져옵니다.
         database = Database()
         # left join으로 대여중인 물품은 대여 정보까지 함께 가져오도록 함
-        sql = (f"SELECT * FROM products AS p LEFT JOIN rent_list AS r ON p.code = r.product_code"\
-               f" WHERE name LIKE '%%{product_name}%%'")
+        sql = f"SELECT * FROM products AS p LEFT JOIN rent_list AS r ON p.code = r.product_code"\
+               f" WHERE name LIKE '%%{product_name}%%';"
         product_list = database.execute_all(sql)
         database.close()
 

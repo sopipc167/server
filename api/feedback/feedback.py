@@ -28,7 +28,9 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
         else:
             if feedback['is_anony'] == 1:  # 익명 처리
                 feedback['user_id'] = 0
+            database.close()
             return feedback, 200
+
 
     def post(self, feedback_code):
         # Body 데이터 얻어오기
@@ -45,8 +47,10 @@ class FeedbackGetAPI(Resource):  # 임원만(id) 볼 수 있어야함
 
         # 만약 작성항목에 널값이 있는지 확인
         if not title: # 피드백 제목을 작성하지 않을때 예외 발생
+            database.close()
             return {'message': '제목을 입력해주세요'}, 400
         elif not content: # 피드백 내용을 작성하지 않을때 예외 발생
+            database.close()
             return {'message': '피드백 내용을 입력해주세요'}, 400
         else: # 피드백을 정상적으로 작성하고
             sql = f"INSERT INTO feedback(code, user_id, is_anony, title, content, is_answered) " \
@@ -88,6 +92,7 @@ class FeedbackListGetAPI(Resource):
 @feedback.response(400, 'already answered', FeedbackDTO.already_answered)
 class FeedbackAnswerAPI(Resource):
     def post(self, feedback_code):
+
         # Body 데이터 얻어오기
         body_data = request.get_json()
         answer_id = body_data['user_id']
